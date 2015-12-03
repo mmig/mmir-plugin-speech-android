@@ -21,7 +21,8 @@ into the platform's resource folders `<www assets>/mmirf/env/media/android*.js`
 ### From GIT repository
 
 execute the following command in Cordova project's root directory: 
- cordova plugin add https://github.com/mmig/mmir-plugin-speech-android.git
+
+    cordova plugin add https://github.com/mmig/mmir-plugin-speech-android.git
 
 
 ### From local copy of the repository
@@ -31,13 +32,16 @@ execute the following command in Cordova project's root directory:
 (2) add the plugin to the Cordova project:
 
 use command: 
- cordova plugin add <file path to plugin directory>
+
+    cordova plugin add <file path to plugin directory>
 
 If plugin source code (from this repository) is located in directory: 
-  D:\DevProjects\Eclipse_workplace\mmir-plugin-androidspeech
+
+    D:\DevProjects\Eclipse_workplace\mmir-plugin-androidspeech
 
 execute the following command in Cordova project's root directory: 
- cordova plugin add D:\DevProjects\Eclipse_workplace\mmir-plugin-androidspeech
+
+    cordova plugin add D:\DevProjects\Eclipse_workplace\mmir-plugin-androidspeech
 
 
 ## FILES
@@ -45,12 +49,12 @@ execute the following command in Cordova project's root directory:
 the MMIR modules the give access to the speech recognition / synthesis will be copied
     from the plugin directory 
 
- /www/androidAudioInput.js
- /www/androidTextToSpeech.js
+    /www/androidAudioInput.js
+    /www/androidTextToSpeech.js
  
 into into the platform folders of the www-resource files to: 
 
- /www/mmirf/env/media/*
+    /www/mmirf/env/media/*
 
  
 ## MMIR CONFIGURATION
@@ -61,9 +65,9 @@ edit the configuration file in
 
  /www/config/configuration.json
  
-modify of add (if it does not exist already) the configuration entries
+modify or add (if it does not exist already) the configuration entries
 for the MediaManager plugins, i.e. edit the JSON file to: 
-
+```javascript
 {
  ...
 
@@ -82,8 +86,8 @@ for the MediaManager plugins, i.e. edit the JSON file to:
 
  ...
 }
-
-change the "cordova" array entries to "androidAudioInput.js" and "androidTextToSpeech.js"
+```
+i.e. change (or add) the `"cordova"` array entries to `"androidAudioInput.js"` and `"androidTextToSpeech.js"`
 in order to use the 'native' Android ASR and TTS engine, when the application is run as Cordova app
 on Android.
 
@@ -102,7 +106,8 @@ You can checkout the CordovaLib project from a repository and then
 reference the checked-out project from this project:
 
 (1) checkout the CordovaLib project into the same Eclipse workspace: 
-XXXX/CordovaLib TBA 
+
+    t.b.a.: XXXX/CordovaLib 
 
 (2) (in Eclipse) open the project Properties for this project, goto "Java Build Path", open tab "Projects"
  and add the CordovaLib project (you may also need to clean / rebuild the project).
