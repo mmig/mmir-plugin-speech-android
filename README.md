@@ -9,8 +9,8 @@ The plugin provides access to Android's speech recognition service (i.e. it does
 the default graphical interface when accessing using recognition via Intents).
 
 
-This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]:
-On adding the plugin 2 MMIR "modules" (for recognition and synthesis) will be copied
+This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]: 
+On adding the plugin, 2 MMIR "modules" (for recognition and synthesis) will be copied
 into the platform's resource folders `<www assets>/mmirf/env/media/android*.js`
 
 # USAGE
@@ -93,7 +93,7 @@ on Android.
 
 
 
-## DEVELOPMENT AND BUILD THE PLUGIN
+## DEVELOPMENT AND BUILDING THE PLUGIN
 ------
 
 NOTE:
