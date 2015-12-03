@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin 
+    xmlns="http://cordova.apache.org/ns/plugins/1.0"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    id="de.dfki.iui.mmir.speech.AndroidSpeech"
+    version="0.7.4">
+
+    <name>AndroidSpeechPlugin</name>
+    
+    <keywords>cordova,speech,android,asr,speech recognition,tts,text to speech</keywords>
+    
+    <description>
+      Cordova plugin for the Android speech recognizer.
+    </description>
+    
+    <license>MIT</license>
+
+    <author>russa, DFKI</author>
+
+    <engines>
+        <engine name="cordova" version=">=3.0" />
+    </engines>
+    
+    <!-- module implementation for integration into MMIR framework  -->
+    <asset
+        src="www/androidAudioInput.js"
+        target="mmirf/env/media/androidAudioInput.js" />
+    <asset
+        src="www/androidTextToSpeech.js"
+        target="mmirf/env/media/androidTextToSpeech.js" />
+
+
+    <!-- android -->
+    <platform name="android">
+    	
+       <js-module src="www/androidspeech.js" name="androidSpeechPlugin">
+          <clobbers target="window.plugins.androidSpeechPlugin" />
+       </js-module>
+       
+       <js-module src="www/androidtts.js" name="androidTtsPlugin">
+          <clobbers target="window.plugins.androidTtsPlugin" />
+       </js-module>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="AndroidSpeechPlugin" >
+		        <param name="android-package" value="de.dfki.iui.mmir.plugins.speech.android.AndroidSpeechRecognizer" />
+		    </feature>
+		    <feature name="AndroidSpeechSynthesisPlugin" >
+		        <param name="android-package" value="de.dfki.iui.mmir.plugins.speech.android.AndroidSpeechSynthesizer" />
+		    </feature>
+        </config-file>
+        
+        <config-file target="AndroidManifest.xml" parent="/*">
+			<uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
+        </config-file>
+        
+        <source-file
+            src="src/android/de/dfki/iui/mmir/plugins/speech/android/AndroidSpeechRecognizer.java"
+            target-dir="src/de/dfki/iui/mmir/plugins/speech/android" />
+        
+        <source-file
+            src="src/android/de/dfki/iui/mmir/plugins/speech/android/ASRHandler.java"
+            target-dir="src/de/dfki/iui/mmir/plugins/speech/android" />
+        
+        <source-file
+            src="src/android/de/dfki/iui/mmir/plugins/speech/android/LanguageDetailsReceiver.java"
+            target-dir="src/de/dfki/iui/mmir/plugins/speech/android" />
+            
+        <source-file
+            src="src/android/de/dfki/iui/mmir/plugins/speech/android/AndroidSpeechSynthesizer.java"
+            target-dir="src/de/dfki/iui/mmir/plugins/speech/android" />
+
+
+        <!-- NOTE references to beep (beep.wav) in XXX and XXX 
+        	 must be updated to point to the main Activity's resource R
+        -->
+        <!--source-file
+            src="res/android/res/raw/beep.wav"
+            target-dir="res/raw" /-->
+            
+
+    </platform>
+    
+    <!-- iOS platform -->
+    <platform name="ios">
+    
+       <js-module src="www/androidspeech_stub.js" name="androidSpeechPlugin">
+          <clobbers target="window.plugins.androidSpeechPlugin" />
+       </js-module>
+       
+       <js-module src="www/androidtts_stub.js" name="androidTtsPlugin">
+          <clobbers target="window.plugins.androidTtsPlugin" />
+       </js-module>
+       
+    </platform>
+    
+</plugin>
