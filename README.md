@@ -63,7 +63,7 @@ for configuring the MMIR app to use this plugin/module for its speech input/outp
 
 edit the configuration file in 
 
- /www/config/configuration.json
+    /www/config/configuration.json
  
 modify or add (if it does not exist already) the configuration entries
 for the MediaManager plugins, i.e. edit the JSON file to: 
