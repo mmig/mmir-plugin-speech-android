@@ -25,7 +25,7 @@
  */
 
 /**
- * part of Cordova plugin: de.dfki.iui.mmir.speech.AndroidSpeech
+ * part of Cordova plugin: dfki-mmir-plugin-speech-android
  * @version 0.7.6
  * @ignore
  */
