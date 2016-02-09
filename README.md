@@ -125,14 +125,14 @@ NOTE:
 "building" is not necessary for using the plugin, but it
 may provide helpful feedback during plugin development.
 
-This project requires Cordova 3.x for building the Java source.
+This project requires Cordova 5.x for building the Java source.
 
 You can checkout the CordovaLib project from a repository and then
 reference the checked-out project from this project:
 
-(1) checkout the CordovaLib project into the same Eclipse workspace: 
+(1) checkout the Cordova5Lib project into the same Eclipse workspace: 
 
-    t.b.a.: XXXX/CordovaLib 
+    t.b.a.: XXXX/Cordova5Lib 
 
 (2) (in Eclipse) open the project Properties for this project, goto "Java Build Path", open tab "Projects"
  and add the CordovaLib project (you may also need to clean / rebuild the project).
