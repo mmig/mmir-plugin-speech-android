@@ -1,6 +1,12 @@
 /**
  * The MIT License
- *
+ *  
+ *  Copyright (c) 2014-2016
+ *  DFKI (github.com/mmig)
+ *  
+ *  
+ *  based on work of:
+ *    
  *	Copyright (c) 2011-2013
  *	Colin Turner (github.com/koolspin)  
  *	Guillaume Charhon (github.com/poiuytrez)  
@@ -29,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -439,18 +446,125 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
     	return SDK_VERSION >= Build.VERSION_CODES.JELLY_BEAN;
     }
     
+    int soloCounter = 0;
 	void disableSoundFeedback() {
+		
 		if(!mIsStreamSolo && isDisableSoundPrompt()){
+			
+			if(delayedEnableSoundHandler != null){
+				delayedEnableSoundHandler.cancel();
+				delayedEnableSoundHandler = null;
+			}
+			
 		    mAudioManager.setStreamSolo(AudioManager.STREAM_VOICE_CALL, true);
 		    mIsStreamSolo = true;
+		    
+		    Log.e(PLUGIN_NAME + "_debug-solostream", "DISABLE SOUND -> solo-counter: "+(++soloCounter));
 		}
 	}
 
 	void enableSoundFeedback() {
+		
 		if (mIsStreamSolo){
 	         mAudioManager.setStreamSolo(AudioManager.STREAM_VOICE_CALL, false);
 	         mIsStreamSolo = false;
+	         
+			 Log.e(PLUGIN_NAME + "_debug-solostream", "ENABLE SOUND -> solo-counter: "+(--soloCounter));
 	    }
+	}
+	
+//	private Object delayedEnableSoundLock = new Object(); FIXME use lock/synchronized when accessing delayedEnableSoundHandler? 
+	private DelayedEnableSound delayedEnableSoundHandler = null;
+	private int reenableSoundDelay = 500;//ms <- delay for re-enabling sound after recognition has finished (the delay needs to be long enough to suppress the last (un-wanted) sound-feedback of the recognition)
+	void enableSoundFeedbackDelayed() {
+
+		// TODO implement without running on UI thread & scheduling another
+		// "thread" (would need Looper impl. when running delayed?)
+		if(delayedEnableSoundHandler != null){
+			delayedEnableSoundHandler.cancel();
+		}
+		delayedEnableSoundHandler = new DelayedEnableSound();
+		cordova.getActivity().runOnUiThread(delayedEnableSoundHandler);
+	}
+	
+
+	static Handler delayedSoundHandler = null;
+	private class DelayedEnableSound implements Runnable {
+
+		private Object delayedSoundLock = new Object();
+		private boolean isCanceled = false;
+				
+		@Override
+		public void run() {
+			
+			synchronized(delayedSoundLock){
+				
+				if(isCanceled){
+					return; ////////////////// EARLY EXIT /////////////////////
+				}
+				
+				if(delayedSoundHandler == null){
+					delayedSoundHandler = new Handler();
+				}
+			}
+			
+			boolean isScheduled = delayedSoundHandler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					
+					synchronized(delayedSoundLock){
+						
+						if(isCanceled){
+							return; ////////////////// EARLY EXIT /////////////////////
+						}
+						
+						isCanceled = true;
+						
+						if (AndroidSpeechRecognizer.this != null) {
+							AndroidSpeechRecognizer.this.enableSoundFeedback();
+						}
+					}
+
+				}
+				
+			}, reenableSoundDelay);
+
+			if (!isScheduled) {
+
+				synchronized(delayedSoundLock){
+					
+					if(isCanceled){
+						return; ////////////////// EARLY EXIT /////////////////////
+					}
+					
+					isCanceled = true;
+					
+					if (AndroidSpeechRecognizer.this != null) {
+						AndroidSpeechRecognizer.this.enableSoundFeedback();
+					}
+				}
+
+			}
+			
+		}
+		
+		public void cancel(){
+			
+			synchronized(delayedSoundLock){
+				
+				if(isCanceled){
+					return; ////////////////// EARLY EXIT /////////////////////
+				}
+				
+				isCanceled = true;
+				
+				if(delayedSoundHandler != null){
+					
+					delayedSoundHandler.removeCallbacks(this);
+				}
+			}
+		}
+		
 	}
     
 }

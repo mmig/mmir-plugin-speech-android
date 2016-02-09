@@ -138,7 +138,7 @@ class ASRHandler implements RecognitionListener {
 		if (isNoSpeechTimeoutRunning){
             noSpeechCountDown.cancel();
         }
-		doEnableSound();
+		doEnableSound(false);
 		super.finalize();
 	}
 
@@ -230,9 +230,16 @@ class ASRHandler implements RecognitionListener {
 	}
 
 	private void doEnableSound() {
+		doEnableSound(true);
+	}
+	
+	private void doEnableSound(boolean isDelayed) {
 		//since the method is also called from finalize(), we need to check if the owner still exists, befor calling one of its methods:
 		if(this._owner != null){
-			this._owner.enableSoundFeedback();
+			if(isDelayed)
+				this._owner.enableSoundFeedbackDelayed();
+			else
+				this._owner.enableSoundFeedback();
 		}
 	}
 
