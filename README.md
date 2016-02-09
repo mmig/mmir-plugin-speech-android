@@ -1,7 +1,7 @@
-# mmir-plugin-speech-android
+# dfki-mmir-plugin-speech-android
 ----
 
-Cordova plugin (3.x) for the MMIR framework for accessing Android's system speech recognition and synthesis
+Cordova plugin (5.x) for the MMIR framework for accessing Android's system speech recognition and synthesis
 
 
 
@@ -47,7 +47,7 @@ execute the following command in Cordova project's root directory:
 ## FILES
 
 the MMIR modules the give access to the speech recognition / synthesis will be copied
-    from the plugin directory 
+from the plugin directory 
 
     /www/androidAudioInput.js
     /www/androidTextToSpeech.js
@@ -56,6 +56,31 @@ into into the platform folders of the www-resource files to:
 
     /www/mmirf/env/media/*
 
+
+<br>
+TIP: if you are using _Eclipse_ you can add _links_ to these files in your project, so that
+     they appear in your app's `/www` directory at `/www/mmirf/env/media/*` 
+     Either use _Eclipse_'s `New File` dialog or edit `/.project` by adding the following
+     somewhere within the `<projectDescription>` tag:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+  ...
+  <linkedResources>
+    <link>
+      <name>www/mmirf/env/media/androidAudioInput.js</name>
+      <type>1</type>
+      <locationURI>$%7BPROJECT_LOC%7D/plugins/dfki-mmir-plugin-speech-android/www/androidAudioInput.js</locationURI>
+    </link>
+    <link>
+      <name>www/mmirf/env/media/androidTextToSpeech.js</name>
+      <type>1</type>
+      <locationURI>$%7BPROJECT_LOC%7D/plugins/dfki-mmir-plugin-speech-android/www/androidTextToSpeech.js</locationURI>
+    </link>
+  </linkedResources>
+  ...
+</projectDescription>
+```
  
 ## MMIR CONFIGURATION
 

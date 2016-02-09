@@ -26,7 +26,7 @@
 
 /**
  * part of Cordova plugin: de.dfki.iui.mmir.speech.AndroidSpeech
- * @version 0.7.5
+ * @version 0.7.6
  * @ignore
  */
 newMediaPlugin = {
@@ -49,7 +49,7 @@ newMediaPlugin = {
 			 * @type AndroidSpeechSynthesisPlugin
 			 * @memberOf AndroidTextToSpeech#
 			 */
-			var androidTtsPlugin = window.plugins.androidTtsPlugin;
+			var androidTtsPlugin = window.cordova.plugins.androidTtsPlugin;
 			/** 
 			 * @type String
 			 * @memberOf AndroidTextToSpeech#

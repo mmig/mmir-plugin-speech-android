@@ -1,0 +1,40 @@
+{
+  "name": "dfki-mmir-plugin-speech-android",
+  "version": "0.7.6",
+  "description": "\r\n      Cordova plugin for the Android speech recognizer.\r\n    ",
+  "cordova": {
+    "id": "dfki-mmir-plugin-speech-android",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmig/mmir-plugin-speech-android.git"
+  },
+  "keywords": [
+    "cordova",
+    "speech",
+    "android",
+    "asr",
+    "speech recognition",
+    "tts",
+    "text to speech",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "dfki-mmir-plugin-speech-android",
+      "version": ">=5.0"
+    }
+  ],
+  "author": "russa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mmig/mmir-plugin-speech-android/issues"
+  },
+  "homepage": "https://github.com/mmig/mmir-plugin-speech-android#readme"
+}

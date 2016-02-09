@@ -26,7 +26,7 @@
 
 /**
  * part of Cordova plugin: de.dfki.iui.mmir.speech.AndroidSpeech
- * @version 0.7.5
+ * @version 0.7.6
  * @ignore
  */
 newMediaPlugin = {
@@ -44,7 +44,7 @@ newMediaPlugin = {
 			 * @type AndroidSpeechPlugin
 			 * @memberOf AndroidAudioInput#
 			 */
-			var androidSpeechPlugin = window.plugins.androidSpeechPlugin;
+			var androidSpeechPlugin = window.cordova.plugins.androidSpeechPlugin;
 
 			/**  @memberOf AndroidAudioInput# */
 			var id = 0;

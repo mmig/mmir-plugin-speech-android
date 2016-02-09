@@ -3,8 +3,8 @@
 <plugin 
     xmlns="http://cordova.apache.org/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-    id="de.dfki.iui.mmir.speech.AndroidSpeech"
-    version="0.7.5">
+    id="dfki-mmir-plugin-speech-android"
+    version="0.7.6">
 
     <name>AndroidSpeechPlugin</name>
     
@@ -19,7 +19,7 @@
     <author>russa, DFKI</author>
 
     <engines>
-        <engine name="cordova" version=">=3.0" />
+        <engine name="cordova" version=">=5.0" />
     </engines>
     
     <!-- module implementation for integration into MMIR framework  -->
@@ -35,11 +35,11 @@
     <platform name="android">
     	
        <js-module src="www/androidspeech.js" name="androidSpeechPlugin">
-          <clobbers target="window.plugins.androidSpeechPlugin" />
+          <clobbers target="window.cordova.plugins.androidSpeechPlugin" />
        </js-module>
        
        <js-module src="www/androidtts.js" name="androidTtsPlugin">
-          <clobbers target="window.plugins.androidTtsPlugin" />
+          <clobbers target="window.cordova.plugins.androidTtsPlugin" />
        </js-module>
 
         <config-file target="res/xml/config.xml" parent="/*">
@@ -86,11 +86,11 @@
     <platform name="ios">
     
        <js-module src="www/androidspeech_stub.js" name="androidSpeechPlugin">
-          <clobbers target="window.plugins.androidSpeechPlugin" />
+          <clobbers target="window.cordova.plugins.androidSpeechPlugin" />
        </js-module>
        
        <js-module src="www/androidtts_stub.js" name="androidTtsPlugin">
-          <clobbers target="window.plugins.androidTtsPlugin" />
+          <clobbers target="window.cordova.plugins.androidTtsPlugin" />
        </js-module>
        
     </platform>
