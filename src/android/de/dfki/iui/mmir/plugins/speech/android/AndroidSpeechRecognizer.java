@@ -108,11 +108,11 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
 		// Action selector
     	if (ACTION_RECOGNIZE.equals(action)) {
             // recognize speech
-            startSpeechRecognitionActivity(args, callbackContext);     
+            startSpeechRecognitionActivity(args, callbackContext, true);     
         } else if (ACTION_GET_LANGUAGES.equals(action)) {
         	getSupportedLanguages(callbackContext);
         } else if (ACTION_START_RECORDING.equals(action)) {
-        	startSpeechRecognitionActivity(args, callbackContext);
+        	startSpeechRecognitionActivity(args, callbackContext, false);
         } else if (ACTION_STOP_RECORDING.equals(action)) {
         	stopSpeechInput(callbackContext);
         } else if (ACTION_CANCEL.equals(action)) {
@@ -163,20 +163,20 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
      *
      * @param args Argument array with the following string args: [req code][number of matches][prompt string]
      */
-    private void startSpeechRecognitionActivity(final JSONArray args, final CallbackContext callbackContext) {
+    private void startSpeechRecognitionActivity(final JSONArray args, final CallbackContext callbackContext, final boolean isWithEndOfSpeechDetection) {
     	
     	//need to run recognition on UI thread (Android's SpeechRecognizer must run on main thread)
     	cordova.getActivity().runOnUiThread(new Runnable() {
     			
 			@Override
 			public void run() {
-				_startSpeechRecognitionActivity(args, callbackContext);
+				_startSpeechRecognitionActivity(args, callbackContext, isWithEndOfSpeechDetection);
 			}
 		});
     	
     }
     
-    private void _startSpeechRecognitionActivity(JSONArray args, CallbackContext callbackContext) {
+    private void _startSpeechRecognitionActivity(JSONArray args, CallbackContext callbackContext, boolean isWithEndOfSpeechDetection) {
         int maxMatches = 0;
         String prompt = "";//TODO remove? (not used when ASR is directly used as service here...)
         String language = Locale.getDefault().toString();
@@ -199,7 +199,7 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
             	// Optional text prompt
                 prompt = args.getString(3);
             }
-
+            
             //TODO if ... withoutEndOfSpeechDetection = ...
         }
         catch (Exception e) {
@@ -212,8 +212,17 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language);
         
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 10000);
-         
+        if(!isWithEndOfSpeechDetection){
+
+        	// try to simulate start/stop-recording behavior (without end-of-speech detection) 
+        	
+        	//NOTE these setting do not seem to have any effect for default Google Recognizer API level > 16
+        	
+        	intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 10000l);
+
+        	intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, new Long(10000));
+        	intent.putExtra(RecognizerIntent. EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , new Long(6 * 1000));
+        }
 
         if (maxMatches > 0)
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, maxMatches);
@@ -221,16 +230,13 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         if (!prompt.equals(""))
             intent.putExtra(RecognizerIntent.EXTRA_PROMPT, prompt);
         
-//        //FIXME TEST try to simulate start/stop-recording behavior (without end-of-speech detection) 
-//        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, new Long(10000));
-////      intent.putExtra(RecognizerIntent. EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , 6 * 1000);
-        
         
         if(isIntermediate)
         	intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         
-//        //TODO remove?
-//        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, cordova.getActivity().getPackageName());
+        //NOTE the extra package seems to be required for older Android versions, but not since API level 17(?)
+        if(SDK_VERSION <= Build.VERSION_CODES.JELLY_BEAN)
+        	intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, cordova.getActivity().getPackageName());
         
         synchronized (speechLock){
         	
