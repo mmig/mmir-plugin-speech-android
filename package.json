@@ -1,6 +1,6 @@
 {
   "name": "dfki-mmir-plugin-speech-android",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "\r\n      Cordova plugin for the Android speech recognizer.\r\n    ",
   "cordova": {
     "id": "dfki-mmir-plugin-speech-android",
