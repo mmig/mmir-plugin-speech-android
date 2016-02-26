@@ -270,8 +270,8 @@ class ASRHandler implements RecognitionListener {
 
 	@Override
 	public void onReadyForSpeech(Bundle params) {
-		
-		print("onReadyForSpeech with params: "+ toString(params.keySet()));
+
+		print("onReadyForSpeech with params: "+ toString(params != null? params.keySet() : null));
 		
 		doDisableSound();
 		doStartTimeout();
@@ -412,7 +412,7 @@ class ASRHandler implements RecognitionListener {
 	@Override
 	public void onBufferReceived(byte[] buffer) {
 
-		printd("onBufferReceived: size "+buffer.length);
+		printd("onBufferReceived: size "+(buffer != null? buffer.length : null));
 	}
 
 	private int _onEndOfSpeechCounter = 0;
@@ -581,7 +581,7 @@ class ASRHandler implements RecognitionListener {
 	@Override
 	public void onEvent(int eventType, Bundle params) {
 		// TODO Auto-generated method stub
-		printe("onEvent: type "+eventType+", with params: "+ toString(params.keySet()));
+		printe("onEvent: type "+eventType+", with params: "+ toString(params != null? params.keySet() : null));
 	}
 	
 //	public List<AudioLevelChange> getAudioLevels(){
