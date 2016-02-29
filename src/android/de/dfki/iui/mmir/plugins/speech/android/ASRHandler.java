@@ -209,7 +209,20 @@ class ASRHandler implements RecognitionListener {
 		}
 		return msg;
 	}
-	
+	private String toString(byte[] buffer){
+		if(buffer != null){
+			return "byte[] (size " + buffer.length + ")";
+		}
+		return "null";
+	}
+	private String toString(Bundle params){
+		if(params != null) try{
+			return toString(params.keySet());
+		} catch(Exception e){
+			LOG.e(NAME, "error creating debug output for Bundle", e);
+		}
+		return "null";
+	}
 	private String toString(Collection<String> col){
 		if(col == null){
 			return "NULL";
@@ -271,7 +284,7 @@ class ASRHandler implements RecognitionListener {
 	@Override
 	public void onReadyForSpeech(Bundle params) {
 
-		print("onReadyForSpeech with params: "+ toString(params != null? params.keySet() : null));
+		print("onReadyForSpeech with params: "+ toString(params));
 		
 		doDisableSound();
 		doStartTimeout();
@@ -412,7 +425,7 @@ class ASRHandler implements RecognitionListener {
 	@Override
 	public void onBufferReceived(byte[] buffer) {
 
-		printd("onBufferReceived: size "+(buffer != null? buffer.length : null));
+		printd("onBufferReceived: size "+ toString(buffer));
 	}
 
 	private int _onEndOfSpeechCounter = 0;
@@ -581,7 +594,7 @@ class ASRHandler implements RecognitionListener {
 	@Override
 	public void onEvent(int eventType, Bundle params) {
 		// TODO Auto-generated method stub
-		printe("onEvent: type "+eventType+", with params: "+ toString(params != null? params.keySet() : null));
+		printe("onEvent: type "+eventType+", with params: "+ toString(params));
 	}
 	
 //	public List<AudioLevelChange> getAudioLevels(){
