@@ -94,14 +94,15 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
 
 	@Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
-		Boolean isValidAction = true;
+		
+		boolean isValidAction = true;
 
 //    	this.callbackContext= callbackContext;
 
-		//FIXME DEBUG:
-		try{
-			LOG.i(PLUGIN_NAME + "_DEBUG", String.format("action '%s' with arguments: %s)", action, args.toString(2)));
-		}catch(Exception e){}
+//		//FIXM DEBUG:
+//		try{
+//			LOG.d(PLUGIN_NAME + "_DEBUG", String.format("action '%s' with arguments: %s)", action, args.toString(2)));
+//		}catch(Exception e){}
 		
 		
 		
