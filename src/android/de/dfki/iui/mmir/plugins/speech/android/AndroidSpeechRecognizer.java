@@ -218,8 +218,6 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         	// try to simulate start/stop-recording behavior (without end-of-speech detection) 
         	
         	//NOTE these setting do not seem to have any effect for default Google Recognizer API level > 16
-        	
-        	intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 10000l);
 
         	intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, new Long(10000));
         	intent.putExtra(RecognizerIntent. EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , new Long(6 * 1000));
