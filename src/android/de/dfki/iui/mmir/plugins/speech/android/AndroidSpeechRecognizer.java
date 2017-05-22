@@ -28,6 +28,8 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
+import org.apache.cordova.PluginResult;
+import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
 
 import android.app.Activity;
@@ -56,6 +58,8 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
 	
 	public static final String ACTION_MIC_LEVEL_LISTENER = "setMicLevelsListener";
 	
+	private static final String INIT_MESSAGE_CHANNEL = "msg_channel";
+	
 	private static final String PLUGIN_NAME = AndroidSpeechRecognizer.class.getSimpleName();
 	private static final int SDK_VERSION = Build.VERSION.SDK_INT;
 //    private static int REQUEST_CODE = 1001;
@@ -79,6 +83,11 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
      * @see #setMicLevelsListener(boolean, CallbackContext)
      */
     private boolean enableMicLevelsListeners = false;
+    
+    /**
+     * Back-channel to JavaScript-side
+     */
+	private CallbackContext messageChannel;
     
     CordovaInterface _cordova;
     
@@ -124,7 +133,14 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
 //        	returnMicLevels(callbackContext);
         } else if (ACTION_MIC_LEVEL_LISTENER.equals(action)) {
         	setMicLevelsListener(args, callbackContext);
-        } else {
+        } else if (INIT_MESSAGE_CHANNEL.equals(action)) {
+
+			messageChannel = callbackContext;
+			PluginResult result = new PluginResult(Status.OK, Utils.createMessage("action", "plugin", "status", "initialized plugin channel"));
+			result.setKeepCallback(true);
+			callbackContext.sendPluginResult(result);
+
+		} else {
             // Invalid action
         	callbackContext.error("Unknown action: " + action);
         	isValidAction = false;
@@ -384,6 +400,15 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         	callbackContext.success();	
     	}
     	
+    }
+    
+    //send mic-levels value to JavaScript side
+    void sendMicLevels(float levels){
+    	
+    	PluginResult micLevels = new PluginResult(Status.OK, Utils.createMessage("action", "miclevels", "value", levels));
+		micLevels.setKeepCallback(true);
+		
+		messageChannel.sendPluginResult(micLevels);
     }
     
     //FIXME TEST private/package-level method that allows canceling recognition

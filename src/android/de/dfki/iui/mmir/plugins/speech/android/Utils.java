@@ -6,7 +6,9 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 
 public class Utils {
-
+	
+	private static final String NAME = "AndroidSpeechPlugin::Util";
+	
 	// Speech Recognition Permissions
     private static final int REQUEST_SPEECH_RECOGNITION = 1363699479;
     private static String[] PERMISSIONS_SPEECH_RECOGNITION = {
@@ -41,4 +43,48 @@ public class Utils {
         }
     }
 
+	public static JSONObject createMessage(Object ...args){
+
+		JSONObject msg = new JSONObject();
+
+		addToMessage(msg, args);
+
+		return msg;
+	}
+
+	public static void addToMessage(JSONObject msg, Object ...args){
+
+		int size = args.length;
+		if(size % 2 != 0){
+			LOG.e(NAME, "Invalid argument length (must be even number): "+size);
+		}
+
+		Object temp;
+		String name;
+
+		for(int i=0; i < size; i+=2){
+
+			temp = args[i];
+			if(!(temp instanceof String)){
+				LOG.e(NAME, "Invalid argument type at "+i+" lenght (must be a String): "+temp);
+				name = String.valueOf(temp);
+			} else {
+				name = (String) temp;
+			}
+
+			if(i+1 < size){
+				temp = args[i+1];
+			} else {
+				temp = null;
+			}
+
+			try {
+
+				msg.putOpt(name, temp);
+
+			} catch (JSONException e) {
+				LOG.e(NAME, "Failed to add value "+temp+" to message object", e);
+			}
+		}
+	}
 }

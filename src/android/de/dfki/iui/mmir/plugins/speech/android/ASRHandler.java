@@ -396,7 +396,7 @@ class ASRHandler implements RecognitionListener {
 				
 				value *= RMS_CHANGE_NORMALIZATION_FACTOR;
 				
-				this._owner.webView.sendJavascript("cordova.require('"+JS_PLUGIN_ID+"').fireMicLevelChanged(" + value + ");");
+				this._owner.sendMicLevels(value);
 			}	
 		}
 	}
