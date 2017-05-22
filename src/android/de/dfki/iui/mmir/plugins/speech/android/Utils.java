@@ -1,5 +1,9 @@
 package de.dfki.iui.mmir.plugins.speech.android;
 
+import org.apache.cordova.LOG;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
