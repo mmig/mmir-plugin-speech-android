@@ -134,7 +134,7 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         } else if (INIT_MESSAGE_CHANNEL.equals(action)) {
 
 			messageChannel = callbackContext;
-			PluginResult result = new PluginResult(Status.OK, Util.createMessage("action", "plugin", "status", "initialized plugin channel"));
+			PluginResult result = new PluginResult(Status.OK, Utils.createMessage("action", "plugin", "status", "initialized plugin channel"));
 			result.setKeepCallback(true);
 			callbackContext.sendPluginResult(result);
 
@@ -403,7 +403,7 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
     //send mic-levels value to JavaScript side
     void sendMicLevels(float levels){
     	
-    	PluginResult micLevels = new PluginResult(Status.OK, Util.createMessage("action", "miclevels", "value", levels));
+    	PluginResult micLevels = new PluginResult(Status.OK, Utils.createMessage("action", "miclevels", "value", levels));
 		micLevels.setKeepCallback(true);
 		
 		messageChannel.sendPluginResult(micLevels);

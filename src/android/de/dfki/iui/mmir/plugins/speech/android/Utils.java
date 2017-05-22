@@ -4,7 +4,7 @@ import org.apache.cordova.LOG;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Util {
+public class Utils {
 	
 	private static final String NAME = "AndroidSpeechPlugin::Util";
 	
