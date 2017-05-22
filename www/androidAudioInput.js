@@ -47,14 +47,12 @@ newMediaPlugin = {
 			 * @memberOf AndroidAudioInput#
 			 */
 			var _mmir = null;
-			
-			//get mmir-lib core from global namespace:
-			_mmir = window[typeof MMIR_CORE_NAME === 'string'? MMIR_CORE_NAME : 'mmir'];
-			if(_mmir){
-				// set legacy-mode if version is < v4
+			if(mediaManager._get_mmir){
+				//_get_mmir() is only available for >= v4
+				_mmir = mediaManager._get_mmir();
+				//just to make sure: set legacy-mode if version is < v4
 				_isLegacyMode = _mmir? _mmir.isVersion(4, '<') : true;
 			}
-			
 			/**
 			 * HELPER for require(): 
 			 * 		use module IDs (and require instance) depending on legacy mode
