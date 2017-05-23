@@ -229,7 +229,7 @@ newMediaPlugin = {
 							options = {text: options};
 						}
 						
-						if(successCallback){
+						if(endCallBack){
 							options.success = endCallBack;
 						}
 
