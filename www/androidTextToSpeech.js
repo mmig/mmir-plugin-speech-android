@@ -1,5 +1,5 @@
 /*
- * 	Copyright (C) 2012-2015 DFKI GmbH
+ * 	Copyright (C) 2012-2017 DFKI GmbH
  * 	Deutsches Forschungszentrum fuer Kuenstliche Intelligenz
  * 	German Research Center for Artificial Intelligence
  * 	http://www.dfki.de
@@ -171,37 +171,105 @@ newMediaPlugin = {
 			//invoke the passed-in initializer-callback and export the public functions:
 			callBack({
 					/**
+					 * @deprecated use {@link #tts} instead
+					 * @memberOf AndroidTextToSpeech.prototype
+					 */
+					textToSpeech: function(){
+						return this.tts.apply(this, arguments);
+					},
+					/**
+					 * Synthesizes ("read out loud") text.
+	    			 * 
+	    			 * @param {String|Array<String>|PlainObject} [options] OPTIONAL
+	    			 * 		if <code>String</code> or <code>Array</code> of <code>String</code>s
+	    			 * 			  synthesizes the text of the String(s).
+	    			 * 			  <br>For an Array: each entry is interpreted as "sentence";
+	    			 * 				after each sentence, a short pause is inserted before synthesizing the
+	    			 * 				the next sentence<br>
+	    			 * 		for a <code>PlainObject</code>, the following properties should be used:
+	    			 * 		<pre>{
+	    			 * 			  text: String | String[], text that should be read aloud
+	    			 * 			, pauseDuration: OPTIONAL Number, the length of the pauses between sentences (i.e. for String Arrays) in milliseconds
+	    			 * 			, language: OPTIONAL String, the language for synthesis (if omitted, the current language setting is used)
+	    			 * 			, voice: OPTIONAL String, the voice (language specific) for synthesis; NOTE that the specific available voices depend on the TTS engine
+	    			 * 			, success: OPTIONAL Function, the on-playing-completed callback (see arg onPlayedCallback)
+	    			 * 			, error: OPTIONAL Function, the error callback (see arg failureCallback)
+	    			 * 			, ready: OPTIONAL Function, the audio-ready callback (see arg onReadyCallback)
+	    			 * 		}</pre>
+	    			 * 
+	    			 * @param {Function} [onPlayedCallback] OPTIONAL
+	    			 * 			callback that is invoked when the audio of the speech synthesis finished playing:
+	    			 * 			<pre>onPlayedCallback()</pre>
+	    			 * 
+	    			 * 			<br>NOTE: if used in combination with <code>options.success</code>, this argument will supersede the options
+	    			 * 
+	    			 * @param {Function} [failureCallback] OPTIONAL
+	    			 * 			callback that is invoked in case an error occurred:
+	    			 * 			<pre>failureCallback(error: String | Error)</pre>
+	    			 * 
+	    			 * 			<br>NOTE: if used in combination with <code>options.error</code>, this argument will supersede the options
+	    			 * 
+	    			 * @param {Function} [onReadyCallback] OPTIONAL
+	    			 * 			callback that is invoked when audio becomes ready / is starting to play.
+	    			 * 			If, after the first invocation, audio is paused due to preparing the next audio,
+	    			 * 			then the callback will be invoked with <code>false</code>, and then with <code>true</code>
+	    			 * 			(as first argument), when the audio becomes ready again, i.e. the callback signature is:
+	    			 * 			<pre>onReadyCallback(isReady: Boolean, audio: IAudio)</pre>
+	    			 * 
+	    			 * 			<br>NOTE: if used in combination with <code>options.ready</code>, this argument will supersede the options
+	    			 * 
 					 * @public
 					 * @memberOf AndroidTextToSpeech.prototype
 					 * @see mmir.MediaManager#textToSpeech
 					 */
-				    textToSpeech: function (parameter, endCallBack, failureCallBack, startCallBack){
+				    tts: function (options, endCallBack, failureCallback, onReadyCallback){
+				    	
+						//convert first argument to options-object, if necessary
+						if(typeof options === 'string' || commonUtils.isArray(options)){
+							options = {text: options};
+						}
+						
+						if(endCallBack){
+							options.success = endCallBack;
+						}
+
+						if(failureCallback){
+							options.error = failureCallback;
+						}
+
+						if(onReadyCallback){
+							options.ready = onReadyCallback;
+						}
+						
+						options.language = options.language? options.language : languageManager.getLanguageConfig(_pluginName);
 				    	
 //				    	var text;
-//			    		if((typeof parameter !== 'undefined') && commonUtils.isArray(parameter) ){
-//			    			text = parameter.join('\n');
+//			    		if((typeof options !== 'undefined') && commonUtils.isArray(options) ){
+//			    			text = options.join('\n');
 //			    		}
 //			    		else {
-//			    			text = parameter;
+//			    			text = options;
 //			    		}
 			    		
-			    		//FIXME implement evaluation / handling the parameter similar to treatment in maryTextToSpeech.js
-		    			var text = parameter;
+		    			var text = options.text;
 			    		
 				    	try{
-				    		var currentLanguage = languageManager.getLanguageConfig(_pluginName);
-				    		currentLanguage = currentLanguage !== language? currentLanguage : void(0);
+				    		//only set language in native plugin, if necessary
+				    		var lang = options.language !== language? options.language : void(0);
+
+				    		//TODO handle more options: voice, pauseDuration
 				    		
 			    			androidTtsPlugin.tts(
-					    			text,
-					    			currentLanguage,
-					    			createSuccessWrapper(endCallBack, startCallBack),
-					    			failureCallBack
+					    			text, lang,
+					    			createSuccessWrapper(options.success, options.ready),
+					    			failureCallback
 					    	);
 				    		
 				    	} catch(e){
-				    		if(failureCallBack){
-				    			failureCallBack(e);
+				    		if(options.error){
+				    			options.error(e);
+				    		} else {
+				    			console.error(e);
 				    		}
 				    	}
 				    	
@@ -211,11 +279,11 @@ newMediaPlugin = {
 					 * @memberOf AndroidTextToSpeech.prototype
 					 * @see mmir.MediaManager#cancelSpeech
 					 */
-	    			cancelSpeech: function(successCallBack,failureCallBack){
+	    			cancelSpeech: function(successCallback,failureCallback){
 	    				
 				    	androidTtsPlugin.cancel(
-				    			successCallBack, 
-				    			failureCallBack
+				    			successCallback, 
+				    			failureCallback
 				    	);
 				    	
 	    			}
