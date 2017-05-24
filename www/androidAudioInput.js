@@ -78,7 +78,7 @@ newMediaPlugin = {
 			 * 
 			 * @returns {any} the configuration value
 			 * 
-			 * @memberOf WebspeechAudioInput#
+			 * @memberOf AndroidAudioInput#
 			 */
 			var _conf = function(path, defaultValue){
 				return _isLegacyMode? config.get(path, true, defaultValue) : config.get(path, defaultValue);
