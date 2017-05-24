@@ -68,12 +68,38 @@ newMediaPlugin = {
 				var name = (_isLegacyMode? '' : 'mmirf/') + id;
 				return _mmir? _mmir.require(name) : require(name);
 			};
+			/**
+			 * HELPER for cofigurationManager.get() backwards compatibility (i.e. legacy mode)
+			 * 
+			 * @param {String|Array<String>} path
+			 * 			the path to the configuration value
+			 * @param {any} [defaultValue]
+			 * 			the default value, if there is no configuration value for <code>path</code>
+			 * 
+			 * @returns {any} the configuration value
+			 * 
+			 * @memberOf WebspeechAudioInput#
+			 */
+			var _conf = function(path, defaultValue){
+				return _isLegacyMode? config.get(path, true, defaultValue) : config.get(path, defaultValue);
+			};
 			
 			/** 
 			 * @type mmir.LanguageManager
 			 * @memberOf AndroidAudioInput#
 			 */
 			var languageManager = _req('languageManager');
+			/** 
+			 * @type mmir.ConfigurationManager
+			 * @memberOf AndroidAudioInput#
+			 */
+			var config = _req('configurationManager');
+			/** 
+			 * @type mmir.Logger
+			 * @memberOf AndroidAudioInput#
+			 */
+			var logger = new _req('logger').create(_pluginName);
+			
 			/** 
 			 * @type AndroidSpeechPlugin
 			 * @memberOf AndroidAudioInput#
@@ -248,12 +274,18 @@ newMediaPlugin = {
 					"RECORDING_DONE": 		"RECORDING_DONE"
 			};
 			
+			//set log-level from configuration (if there is setting)
+			var loglevel = _conf([_pluginName, 'logLevel']);
+			if(typeof loglevel !== 'undefined'){
+				logger.setLevel(loglevel);
+			}
+			
 			//backwards compatibility (pre v0.5.0)
 			if(!mediaManager._preparing){
-				mediaManager._preparing = function(name){console.warn(name + ' is preparing - NOTE: this is a stub-function. Overwrite MediaManager._preparing for setting custom implementation.');};
+				mediaManager._preparing = function(name){logger.info(name + ' is preparing - NOTE: this is a stub-function. Overwrite MediaManager._preparing for setting custom implementation.');};
 			}
 			if(!mediaManager._ready){
-				mediaManager._ready     = function(name){console.warn(name + ' is ready - NOTE: this is a stub-function. Overwrite MediaManager._ready for setting custom implementation.');};
+				mediaManager._ready     = function(name){logger.info(name + ' is ready - NOTE: this is a stub-function. Overwrite MediaManager._ready for setting custom implementation.');};
 			}
 
 			/**
@@ -296,13 +328,14 @@ newMediaPlugin = {
 			var call_callback_with_last_result = function(){
 				if(typeof last_result !== "undefined") {
 					if (currentSuccessCallback){
+						logger.debug("last_result is " + JSON.stringify(last_result));
 						currentSuccessCallback.apply(mediaManager, last_result);
 						last_result = void(0);
 					} else {
-						console.error("androidAudioInput Error: No callback function defined for success.");
+						logger.error("No callback function defined for success.");
 					}
 				} else {
-					console.warn("androidAudioInput Warning: last_result is undefined.");
+					logger.info("last_result is undefined.");
 				}
 			};
 
@@ -319,7 +352,7 @@ newMediaPlugin = {
 				
 				return (function (res){
 					
-//					console.log("androidAudioInput"+(repeat? "(REPEAT_MODE)" : "")+": " + JSON.stringify(res));//FIXM DEBUG
+//					logger.log("androidAudioInput"+(repeat? "(REPEAT_MODE)" : "")+": " + JSON.stringify(res));//FIXM DEBUG
 
 					var asr_result = null;
 					var asr_score = -1;
@@ -356,7 +389,7 @@ newMediaPlugin = {
 							call_callback_with_last_result();
 						} else if (asr_type === result_types.RECORDING_DONE){
 							// Do nothing right now at the recording done event
-//							console.log("androidAudioInput"+(repeat? "(REPEAT_MODE)" : "")+": RECORDING_DONE, last_result: " + JSON.stringify(last_result));//FIXM DEBUG
+//							logger.log("androidAudioInput"+(repeat? "(REPEAT_MODE)" : "")+": RECORDING_DONE, last_result: " + JSON.stringify(last_result));//FIXM DEBUG
 							
 						} else if (asr_type === result_types.FINAL){
 							// its the final result
@@ -404,7 +437,7 @@ newMediaPlugin = {
 //								options.results,
 //								options.mode
 //							);
-//							console.warn("[androidAudioInput] Success - Repeat - Else\nType: " + asr_type+"\n"+JSON.stringify(res));
+//							logger.warn("Success - Repeat - Else\nType: " + asr_type+"\n"+JSON.stringify(res));
 						}
 
 					} else {
@@ -434,7 +467,7 @@ newMediaPlugin = {
 						if (cb){
 							cb(asr_result, asr_score, asr_type, asr_alternatives, asr_unstable);
 						} else {
-							console.error("androidAudioInput Error: No callback function defined for success.");
+							logger.error("No callback function defined for success.");
 						}
 						
 					}
@@ -475,7 +508,7 @@ newMediaPlugin = {
 					
 					++error_counter;
 
-					console.info("androidAudioInput ERROR \""+error_msg+"\" (code "+error_code+", type "+error_type+"), repeat="+repeat+", error-counter: "+error_counter+"...");
+					if(logger.isInfo()) logger.info("\""+error_msg+"\" (code "+error_code+", type "+error_type+"), repeat="+repeat+", error-counter: "+error_counter+"...");
 					
 					mediaManager._ready(_pluginName);
 
@@ -534,7 +567,7 @@ newMediaPlugin = {
 								//-> first need to cancel current recognizer, then restart again:
 								
 //								var retryDelay = error_counter * retry_delay;
-//								console.info("androidAudioInput error: "+error_msg+" (code "+error_code+") - canceling and restarting ASR process in "+(2*retryDelay)+"ms...");
+//								logger.info(" "+error_msg+" (code "+error_code+") - canceling and restarting ASR process in "+(2*retryDelay)+"ms...");
 								
 //								setTimeout( function(){
 								androidSpeechPlugin.cancel(function(){
@@ -546,11 +579,11 @@ newMediaPlugin = {
 									
 								}, function(error){
 									if (cb){
-										console.warn("androidAudioInput ERROR while CANCELING due to ERROR_RECOGNIZER_BUSY: Calling error callback (" + error_code + ": " + error_msg + ").");
+										logger.warn("while CANCELING due to ERROR_RECOGNIZER_BUSY: Calling error callback (" + error_code + ": " + error_msg + ").");
 										cb(error_msg, error_code, error_suggestion);
 									}
 									else {
-										console.error("androidAudioInput ERROR while CANCELING due to ERROR_RECOGNIZER_BUSY: No callback function defined for failure "+error);
+										logger.error("while CANCELING due to ERROR_RECOGNIZER_BUSY: No callback function defined for failure "+error);
 									}
 									
 								});
@@ -568,7 +601,7 @@ newMediaPlugin = {
 						else if(
 								error_code === error_codes_enum.CLIENT
 						){
-							console.info("androidAudioInput error: "+error_msg+" (code "+error_code+") - continuing ASR process...");
+							if(logger.isInfo()) logger.info(error_msg+" (code "+error_code+") - continuing ASR process...");
 						}
 						// call error callback on "severe" errors
 						else 
@@ -586,11 +619,11 @@ newMediaPlugin = {
 									
 							}
 							else if (cb){
-								console.warn("androidAudioInput: Calling error callback (" + error_code + ": " + error_msg + ").");
+								logger.warn("Calling error callback (" + error_code + ": " + error_msg + ").");
 								cb(error_msg, error_code, error_suggestion);
 							}
 							else {
-								console.error("androidAudioInput Error: No callback function defined for failure.");
+								logger.error("No callback function defined for failure.");
 							}
 						}
 						
@@ -601,10 +634,10 @@ newMediaPlugin = {
 						
 						// do no repeat, just call errorCallback
 						if (cb){
-							console.debug("androidAudioInput: Calling error callback (" + error_code + ").");
+							if(logger.isDebug()) logger.debug("Calling error callback (" + error_code + ").");
 							cb(error_msg, error_code, error_suggestion);
 						} else {
-							console.error("androidAudioInput Error: No callback function defined for failure.");
+							logger.error("No callback function defined for failure.");
 						}
 					}
 					
