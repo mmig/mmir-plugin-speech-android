@@ -48,13 +48,15 @@ import android.util.Log;
  */
 public class AndroidSpeechRecognizer extends CordovaPlugin {
 	
-	
-    public static final String ACTION_GET_LANGUAGES = "getSupportedLanguages";
+	public static final String ACTION_GET_LANGUAGES = "getSupportedLanguages";
 	public static final String ACTION_RECOGNIZE = "recognize";
 	public static final String ACTION_START_RECORDING = "startRecording";
 	public static final String ACTION_STOP_RECORDING = "stopRecording";
 	public static final String ACTION_CANCEL = "cancel";
 //	public static final String ACTION_MIC_LEVEL = "getMicLevels";
+
+    public static final String LANGUANGE_MODEL_SEARCH = "search";
+    public static final String LANGUANGE_MODEL_DICTATION = "dictation";
 	
 	public static final String ACTION_MIC_LEVEL_LISTENER = "setMicLevelsListener";
 	
@@ -195,9 +197,10 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
     
     private void _startSpeechRecognitionActivity(JSONArray args, CallbackContext callbackContext, boolean isWithEndOfSpeechDetection) {
         int maxMatches = 0;
-        String prompt = "";//TODO remove? (not used when ASR is directly used as service here...)
         String language = Locale.getDefault().toString();
         boolean isIntermediate = false;
+        String languageModel = null;
+        String prompt = "";//TODO remove? (not used when ASR is directly used as service here...)
 
         try {
         	if (args.length() > 0) {
@@ -214,7 +217,11 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
             }
             if (args.length() > 3) {
             	// Optional text prompt
-                prompt = args.getString(3);
+            	languageModel = args.getString(3);
+            }
+            if (args.length() > 4) {
+            	// Optional text prompt
+                prompt = args.getString(4);
             }
             
             //TODO if ... withoutEndOfSpeechDetection = ...
@@ -222,10 +229,22 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         catch (Exception e) {
             Log.e(PLUGIN_NAME, String.format("startSpeechRecognitionActivity exception: %s", e.toString()));
         }
+        
+        String languageModelParam = RecognizerIntent.LANGUAGE_MODEL_FREE_FORM;
+        if(languageModel != null && languageModel.length() > 0){
+        	if(LANGUANGE_MODEL_SEARCH.equals(languageModel)){
+        		languageModelParam = RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH;
+        	}
+        	else if("dictation".equals(languageModel)){
+        		languageModelParam = RecognizerIntent.LANGUAGE_MODEL_FREE_FORM;
+        	} else {
+        		LOG.w(PLUGIN_NAME, "invalid argument for language model (using default 'dictation' instead): '"+languageModel+"'");
+        	}
+        }
 
         // Create the intent and set parameters
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, languageModelParam);
         
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language);
         

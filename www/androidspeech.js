@@ -36,28 +36,49 @@ var AndroidSpeechPlugin = function() {
 	this.__micListener = [];
 };
 
-AndroidSpeechPlugin.prototype.recognize = function(language, successCallback, failureCallback, withIntermediateResults){
-	 return exec(successCallback,
-   					 failureCallback,
-   					 'AndroidSpeechPlugin',
-   					 'recognize',
-   					 [language, withIntermediateResults? true : false]);
+AndroidSpeechPlugin.prototype.recognize = function(language, successCallback, failureCallback, withIntermediateResults, maxAlternatives, languageModel){
+	
+	var args = [language, withIntermediateResults? true : false];
+
+	if(typeof maxAlternatives === 'number'){
+		args.push(maxAlternatives);
+	}
+	
+	if(typeof languageModel === 'string' && languageModel){
+		args.push(languageModel);
+	}
+	
+	return exec(successCallback,
+					failureCallback,
+					'AndroidSpeechPlugin',
+					'recognize',
+					args);
 };
 
 /**
  * @deprecated use #startRecord instead
  */
 AndroidSpeechPlugin.prototype.recognizeNoEOS = function(language, successCallback, failureCallback, withIntermediateResults){
-	this.startRecord(language, successCallback, failureCallback, withIntermediateResults);
+	return this.startRecord.apply(this, arguments);
 };
 
-AndroidSpeechPlugin.prototype.startRecord = function(language, successCallback, failureCallback, withIntermediateResults){
+AndroidSpeechPlugin.prototype.startRecord = function(language, successCallback, failureCallback, withIntermediateResults, maxAlternatives, languageModel){
+	
+	var args = [language, withIntermediateResults? true : false];
+	
+	if(typeof maxAlternatives === 'number'){
+		args.push(maxAlternatives);
+	}
+	
+	if(typeof languageModel === 'string' && languageModel){
+		args.push(languageModel);
+	}
 	
 	return exec(successCallback,
 					 failureCallback,
 					 'AndroidSpeechPlugin',
 					 'startRecording',
-					 [language, withIntermediateResults? true : false]);
+					 args);
 };
 
 AndroidSpeechPlugin.prototype.stopRecord = function(successCallback, failureCallback){

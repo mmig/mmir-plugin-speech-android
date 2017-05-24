@@ -86,6 +86,9 @@ newMediaPlugin = {
 			/** @memberOf AndroidAudioInput# */
 			var DEFAULT_ALTERNATIVE_RESULTS = 1;
 
+			/** @memberOf AndroidAudioInput# */
+			var DEFAULT_LANGUAGE_MODEL = 'dictation';// 'dictation' | 'search'
+
 			/**  @memberOf AndroidAudioInput# */
 			var id = 0;
 			/**  
@@ -384,7 +387,9 @@ newMediaPlugin = {
 									options.language,
 									successCallbackWrapper(currentSuccessCallback, options),
 									failureCallbackWrapper(currentFailureCallback, options),
-									intermediate_results
+									intermediate_results,
+									options.results,
+									options.mode
 							);
 
 						} else {
@@ -395,7 +400,9 @@ newMediaPlugin = {
 //								options.language,
 //								successCallbackWrapper(currentSuccessCallback, options),
 //								failureCallbackWrapper(currentFailureCallback, options),
-//								intermediate_results
+//								intermediate_results,
+//								options.results,
+//								options.mode
 //							);
 //							console.warn("[androidAudioInput] Success - Repeat - Else\nType: " + asr_type+"\n"+JSON.stringify(res));
 						}
@@ -488,7 +495,9 @@ newMediaPlugin = {
 									languageManager.getLanguageConfig(_pluginName),
 									successCallbackWrapper(currentSuccessCallback, options),
 									failureCallbackWrapper(currentFailureCallback, options),
-									intermediate_results
+									intermediate_results,
+									options.results,
+									options.mode
 							);
 						};
 						
@@ -680,9 +689,9 @@ newMediaPlugin = {
 					options.intermediate = typeof intermediateResults === 'boolean'? intermediateResults : !!options.intermediate;
 					options.language = options.language? options.language : languageManager.getLanguageConfig(_pluginName) || DEFAULT_LANGUAGE;
 					options.disableImprovedFeedback = typeof isDisableImprovedFeedback === 'boolean'? isDisableImprovedFeedback : !!options.disableImprovedFeedback;
+					options.results = options.results? options.results : DEFAULT_ALTERNATIVE_RESULTS;
+					options.mode = options.mode? options.mode : DEFAULT_LANGUAGE_MODEL;
 					//TODO
-//					options.results = options.results? options.results : DEFAULT_ALTERNATIVE_RESULTS;
-//					options.mode =
 //					options.eosPause = 
 
 					
@@ -703,7 +712,9 @@ newMediaPlugin = {
 							options.language,
 							successCallbackWrapper(options.success, options),
 							failureCallbackWrapper(options.error, options),
-							intermediate_results
+							intermediate_results,
+							options.results,
+							options.mode
 					);
 				},
 				/**
@@ -749,9 +760,9 @@ newMediaPlugin = {
 					options.intermediate = typeof intermediateResults === 'boolean'? intermediateResults : !!options.intermediate;
 					options.language = options.language? options.language : languageManager.getLanguageConfig(_pluginName) || DEFAULT_LANGUAGE;
 					options.disableImprovedFeedback = typeof isDisableImprovedFeedback === 'boolean'? isDisableImprovedFeedback : !!options.disableImprovedFeedback;
+					options.results = options.results? options.results : DEFAULT_ALTERNATIVE_RESULTS;
+					options.mode = options.mode? options.mode : DEFAULT_LANGUAGE_MODEL;
 					//TODO
-//					options.results = options.results? options.results : DEFAULT_ALTERNATIVE_RESULTS;
-//					options.mode =
 //					options.eosPause = 
 
 					
@@ -762,7 +773,9 @@ newMediaPlugin = {
 					androidSpeechPlugin.recognize(
 							options.language,
 							successCallbackWrapper(options.success, options),
-							failureCallbackWrapper(options.error, options)
+							failureCallbackWrapper(options.error, options),
+							options.results,
+							options.mode
 					);
 				},
 				/**
