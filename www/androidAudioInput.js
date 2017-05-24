@@ -328,7 +328,7 @@ newMediaPlugin = {
 			var call_callback_with_last_result = function(){
 				if(typeof last_result !== "undefined") {
 					if (currentSuccessCallback){
-						logger.debug("last_result is " + JSON.stringify(last_result));
+						if(logger.isDebug()) logger.debug("last_result is " + JSON.stringify(last_result));
 						currentSuccessCallback.apply(mediaManager, last_result);
 						last_result = void(0);
 					} else {
