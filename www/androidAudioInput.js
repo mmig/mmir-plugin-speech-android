@@ -755,19 +755,26 @@ newMediaPlugin = {
 				 * @memberOf AndroidAudioInput.prototype
 				 * @see mmir.MediaManager#stopRecord
 				 */
-				stopRecord: function(successCallback,failureCallback){
+				stopRecord: function(options, statusCallback, failureCallback){
 					
 					repeat = false;
+					
+					if(typeof options === 'function'){
+						failureCallback = statusCallback;
+						statusCallback = options;
+						options = void(0);
+					}
 					
 					if(!options){
 						options = {};
 					}
+					
 					options.success = statusCallback? statusCallback : options.success;
 					options.error = failureCallback? failureCallback : options.error;
 					
 					androidSpeechPlugin.stopRecord(
-						successCallbackWrapper(successCallback, options),
-						failureCallbackWrapper(failureCallback, options)
+						successCallbackWrapper(options.success, options),
+						failureCallbackWrapper(options.error, options)
 					);
 				},
 				/**
