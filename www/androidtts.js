@@ -38,21 +38,27 @@ AndroidSpeechSynthesisPlugin.STARTED = 2;
 /**
  * Play the passed in text as synthesized speech
  * @function speak 
- * @param {DOMString} text
- * @param {DOMString} language
+ * @param {String|Array<String>} text
+ * @param {String} language
  * @param {Object} successCallback
  * @param {Object} errorCallback
+ * @param {Number} [pauseDuration]
  */
-AndroidSpeechSynthesisPlugin.prototype.tts = function(text, language, successCallback, errorCallback) {
+AndroidSpeechSynthesisPlugin.prototype.tts = function(text, language, successCallback, errorCallback, pauseDuration) {
 	
-     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "speak", [text, language]);
+	var args = [text, language];
+	if(typeof pauseDuration === 'number'){
+		args.push(pauseDuration);
+	}
+	
+	return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "speak", args);
 };
 
 /**
  * @deprecated use #tts function instead (NOTE the different order of the arguments!)
  */
-AndroidSpeechSynthesisPlugin.prototype.speak = function(text, successCallback, errorCallback, language) {
-    return this.tts(text, language, successCallback, errorCallback);
+AndroidSpeechSynthesisPlugin.prototype.speak = function(text, successCallback, errorCallback, language, pauseDuration) {
+    return this.tts(text, language, successCallback, errorCallback, pauseDuration);
 };
 
 /** 
@@ -94,7 +100,7 @@ AndroidSpeechSynthesisPlugin.prototype.shutdown = function(successCallback, erro
  * Finds out if the language is currently supported by the AndroidSpeechSynthesisPlugin service.
  * 
  * @function isLanguageAvailable 
- * @param {DOMSting} lang
+ * @param {Sting} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
@@ -117,7 +123,7 @@ AndroidSpeechSynthesisPlugin.prototype.getLanguage = function(successCallback, e
  * Sets the language of the AndroidSpeechSynthesisPlugin service.
  * 
  * @function setLanguage 
- * @param {DOMString} lang
+ * @param {String} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */

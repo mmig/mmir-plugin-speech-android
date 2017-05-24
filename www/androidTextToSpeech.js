@@ -26,7 +26,7 @@
 
 /**
  * part of Cordova plugin: dfki-mmir-plugin-speech-android
- * @version 0.8.0
+ * @version 0.9.0
  * @ignore
  */
 newMediaPlugin = {
@@ -68,6 +68,21 @@ newMediaPlugin = {
 				var name = (_isLegacyMode? '' : 'mmirf/') + id;
 				return _mmir? _mmir.require(name) : require(name);
 			};
+			/**
+			 * HELPER for cofigurationManager.get() backwards compatibility (i.e. legacy mode)
+			 * 
+			 * @param {String|Array<String>} path
+			 * 			the path to the configuration value
+			 * @param {any} [defaultValue]
+			 * 			the default value, if there is no configuration value for <code>path</code>
+			 * 
+			 * @returns {any} the configuration value
+			 * 
+			 * @memberOf WebspeechAudioInput#
+			 */
+			var _conf = function(path, defaultValue){
+				return _isLegacyMode? config.get(path, true, defaultValue) : config.get(path, defaultValue);
+			};
 			
 			/** 
 			 * @type mmir.LanguageManager
@@ -79,6 +94,17 @@ newMediaPlugin = {
 			 * @memberOf AndroidTextToSpeech#
 			 */
 			var commonUtils = _req('commonUtils');
+			/** 
+			 * @type mmir.ConfigurationManager
+			 * @memberOf AndroidAudioInput#
+			 */
+			var config = _req('configurationManager');
+			/** 
+			 * @type mmir.Logger
+			 * @memberOf AndroidTextToSpeech#
+			 */
+			var logger = new _req('logger').create(_pluginName);
+			
 			/** 
 			 * @type AndroidSpeechSynthesisPlugin
 			 * @memberOf AndroidTextToSpeech#
@@ -98,13 +124,19 @@ newMediaPlugin = {
 					"TTS_BEGIN": "TTS_BEGIN",
 					"TTS_DONE": "TTS_DONE"
 			};
+
+			//set log-level from configuration (if there is setting)
+			var loglevel = _conf([_pluginName, 'logLevel']);
+			if(typeof loglevel !== 'undefined'){
+				logger.setLevel(loglevel);
+			}
 			
 			//initialize the TTS plugin (with the current language setting)
 			androidTtsPlugin.startup(
 				
 				function(data){
 					
-					console.info('AndroidTTS.js.startup: success -> '+JSON.stringify(data));
+					logger.info('AndroidTTS.js.startup: success -> '+JSON.stringify(data));
 					
 					language = languageManager.getLanguageConfig(_pluginName);
 					//TODO get & set voice (API in plugin is missing for that ... currently...)
@@ -113,15 +145,15 @@ newMediaPlugin = {
 					androidTtsPlugin.setLanguage(
 							language,
 						function(data){
-							console.info('AndroidTTS.js.setLanguage('+language+'): success -> '+JSON.stringify(data));
+							logger.info('AndroidTTS.js.setLanguage('+language+'): success -> '+JSON.stringify(data));
 						}, function(e){
-							console.info('AndroidTTS.js.setLanguage('+language+'): error -> '+JSON.stringify(e));
+							logger.warn('AndroidTTS.js.setLanguage('+language+'): error -> '+JSON.stringify(e));
 							language = void(0);
 						}
 					);
 					
 				}, function(e){
-					console.info('AndroidTTS.js.startup: error -> '+JSON.stringify(e));
+					logger.info('AndroidTTS.js.startup: error -> '+JSON.stringify(e));
 				}
 			);
 			//TODO destructor: register onpause/exit handler that shuts down the TTS engine
@@ -141,7 +173,7 @@ newMediaPlugin = {
 							if(onStart){
 								onStart(msg.message);
 							} else {
-								console.debug('AndroidTTS.js: started.');//FIXME debug (use mediamanager's logger instead)
+								logger.debug('AndroidTTS.js: started.');//FIXME debug (use mediamanager's logger instead)
 							}
 						}
 						else if(msg.type === return_types.TTS_DONE){
@@ -149,7 +181,7 @@ newMediaPlugin = {
 							if(onEnd){
 								onEnd(msg.message);
 							} else {
-								console.debug('AndroidTTS.js: finished.');//FIXME debug (use mediamanager's logger instead)
+								logger.debug('AndroidTTS.js: finished.');//FIXME debug (use mediamanager's logger instead)
 							}
 						}
 					}
@@ -157,12 +189,12 @@ newMediaPlugin = {
 					if(isHandled === false) {
 						//DEFALT: treat callback-invocation as DONE callback
 						
-						console.warn('AndroidTTS.js: success-callback invoked without result / specific return-message.');//FIXME debug (use mediamanager's logger instead)
+						logger.warn('AndroidTTS.js: success-callback invoked without result / specific return-message.');//FIXME debug (use mediamanager's logger instead)
 						
 						if(onEnd){
 							onEnd();
 						} else {
-							console.debug('AndroidTTS.js: finished.');//FIXME debug (use mediamanager's logger instead)
+							logger.debug('AndroidTTS.js: finished.');//FIXME debug (use mediamanager's logger instead)
 						}
 					}
 				};
@@ -242,6 +274,8 @@ newMediaPlugin = {
 						}
 						
 						options.language = options.language? options.language : languageManager.getLanguageConfig(_pluginName);
+						
+						options.pauseDuration = options.pauseDuration? options.pauseDuration : void(0);
 				    	
 //				    	var text;
 //			    		if((typeof options !== 'undefined') && commonUtils.isArray(options) ){
@@ -257,19 +291,20 @@ newMediaPlugin = {
 				    		//only set language in native plugin, if necessary
 				    		var lang = options.language !== language? options.language : void(0);
 
-				    		//TODO handle more options: voice, pauseDuration
+				    		//TODO handle more options: voice
 				    		
 			    			androidTtsPlugin.tts(
 					    			text, lang,
 					    			createSuccessWrapper(options.success, options.ready),
-					    			failureCallback
+					    			failureCallback,
+					    			options.pauseDuration
 					    	);
 				    		
 				    	} catch(e){
 				    		if(options.error){
 				    			options.error(e);
 				    		} else {
-				    			console.error(e);
+				    			logger.error(e);
 				    		}
 				    	}
 				    	

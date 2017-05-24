@@ -14,9 +14,11 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.util.Log;
 import android.speech.tts.UtteranceProgressListener;
 
 @SuppressWarnings("deprecation")
@@ -24,7 +26,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 	private static final String ACTION_SILENCE = "silence";
 
-	private static final int DEFAULT_SILENCE_DURATION = 500;
+	private static final long DEFAULT_SILENCE_DURATION = 500l;
 
 	private static final String ACTION_TTS = "speak";
 	private static final String ACTION_STARTUP = "startup";
@@ -81,6 +83,19 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 					isLangOk = setLanguage(args.get(1));
 				}
 				
+				//parse optional arguments:
+				long pause = DEFAULT_SILENCE_DURATION;
+				try {
+		        	if (args.length() > 2) {
+		            	// Optional pause duration
+		        		pause = args.getLong(2);
+		            }
+		        }
+		        catch (Exception e) {
+		            Log.e(PLUGIN_NAME, String.format(ACTION_TTS + " exception: %s", e.toString()));
+		        }
+				
+				//prepare & read text:
 				if (args.length() > 0 && isLangOk && isReady()) {
 					
 					Object ttsText = args.get(0);
@@ -118,7 +133,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 					isCanceled = false;
 					
 					if(sentences != null){
-						result = queueSentence((JSONArray)ttsText);
+						result = queueSentence((JSONArray)ttsText, pause);
 					} else if (ttsText != null) {
 						result = queueText(ttsText.toString());
 					} else {
@@ -241,12 +256,15 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		PluginResult result = null;
 		int idNumber = getNextIdNumber();
 		String utteranceId = getId(idNumber);
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+		Bundle params = null;
+//	 	//TODO? supported bundle params: 
+//	 	if(SDK_VERSION >= 21){
+//	 		params = createParamsBundle(volume, streamId, pan);
+//	 	}
 		int ttsResult;
 		Exception error = null;
 		try {
-			ttsResult = doQueue(text, TextToSpeech.QUEUE_FLUSH, params);//TODO: should this be QUEUE_ADD? configurable/parameterized?
+			ttsResult = doQueue(text, TextToSpeech.QUEUE_FLUSH, null, params, utteranceId);//TODO: should this be QUEUE_ADD? configurable/parameterized?
 			if(ttsResult == TextToSpeech.SUCCESS){
 				result =  doCreateSpeakSuccessResult(idNumber);
 				result.setKeepCallback(true);
@@ -262,7 +280,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		return result;
 	}
 	
-	private PluginResult queueSentence(JSONArray sentences) {
+	private PluginResult queueSentence(JSONArray sentences, long silenceDuration) {
 		
 		int ttsResult = TextToSpeech.ERROR;
 		Exception error = null;
@@ -287,8 +305,12 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 				
 				//create utterance ID
 				String constUtteranceId = getNextId(utteranceId, i+1, size);
-				HashMap<String, String> params = new HashMap<String, String>();
-				params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, constUtteranceId);
+				
+			 	Bundle paramsBundle = null;
+//			 	//TODO? supported bundle params: 
+//			 	if(SDK_VERSION >= 21){
+//			 		paramsBundle = createParamsBundle(volume, streamId, pan);
+//			 	}
 				
 				//for first entry: FLUSH queue (-> see queueText(..))
 				int queueMode = i==0? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD;//TODO: should this always be QUEUE_ADD? configurable/parameterized?
@@ -296,14 +318,35 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 				try {
 					
 					if(text == null || text.length() < 1){
-						ttsResult = mTts.playSilence(DEFAULT_SILENCE_DURATION, queueMode, params);
+						
+						ttsResult = doPlaySilence(silenceDuration, queueMode, null, constUtteranceId);
 					} else {
-						ttsResult = doQueue(text, queueMode, params);
+						
+						ttsResult = doQueue(text, queueMode, null, paramsBundle, constUtteranceId);
+						
+						if(ttsResult == TextToSpeech.ERROR){
+							
+							break;
+							
+						} else if(ttsResult == TextToSpeech.SUCCESS && i < size - 1){
+							//-> insert pause between "sentences"
+
+							String pauseUtteranceId = getNextId(utteranceId, i+1, size);
+							ttsResult = doPlaySilence(silenceDuration, TextToSpeech.QUEUE_ADD, null, pauseUtteranceId);
+
+							//if pause did cause error: log the error
+							if(ttsResult == TextToSpeech.ERROR){
+								
+								Log.e(PLUGIN_NAME, "could not insert pause of "+silenceDuration+" ms for sentence at index "+i);
+								
+								//reset error status
+								//   for evaluation of PluginResult
+								//   -> only consider "real text errors" for that
+								ttsResult = TextToSpeech.SUCCESS;
+							}
+						}
 					}
-					if(ttsResult == TextToSpeech.SUCCESS){
-						result =  doCreateSpeakSuccessResult(utteranceId);
-						result.setKeepCallback(true);
-					}
+					
 				} catch(Exception e){
 					error = e;
 					ttsResult = TextToSpeech.ERROR;
@@ -316,11 +359,17 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 			}
 		}
 		
-		if(ttsResult == TextToSpeech.ERROR){
+		if(ttsResult == TextToSpeech.SUCCESS){
+			
+			result =  doCreateSpeakSuccessResult(utteranceId);
+			result.setKeepCallback(true);
+			
+		} else if(ttsResult == TextToSpeech.ERROR){
 			String msg = "Could not add entry "+i+" to TTS queue";
 			if(error != null){
-				msg += " Error: " + error.toString();//TODO include error's stacktrace?
+				msg += " Error: " + error.toString();
 			}
+			LOG.e(PLUGIN_NAME, msg, error);
 			result = new PluginResult(PluginResult.Status.ERROR, msg);
 		}
 		return result;
@@ -339,8 +388,47 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		
 	}
 
-	private int doQueue(String text, int queueType, HashMap<String, String> params) {
+	private int doQueue(String text, int queueType, HashMap<String, String> params, Bundle paramsBundle, String utteranceId) {
+		if(SDK_VERSION < 21){
+			if(params == null && utteranceId != null){
+				params = createParamsMap(utteranceId);
+			}
+			return doQueue_old(text, queueType, params, utteranceId);
+		} else {
+			return doQueue_api21(text, queueType, paramsBundle, utteranceId);
+		}
+	}
+
+	@TargetApi(20)
+	private int doQueue_old(String text, int queueType, HashMap<String, String> params, String utteranceId) {
 		return mTts.speak(text, queueType, params);
+	}
+	
+	//@TargetApi(21)
+	private int doQueue_api21(String text, int queueType, Bundle params, String utteranceId) {
+		return mTts.speak(text, queueType, params, utteranceId);
+	}
+	
+	
+	private int doPlaySilence(long duration, int queueMode, HashMap<String, String> params, String utteranceId){
+		if(SDK_VERSION < 21){
+			if(params == null && utteranceId != null){
+				params = createParamsMap(utteranceId);
+			}
+			return doPlaySilence_old(duration, queueMode, params);
+		} else {
+			return doPlaySilence_api21(duration, queueMode, utteranceId);
+		}
+	}
+
+	@TargetApi(20)
+	private int doPlaySilence_old(long duration, int queueMode, HashMap<String, String> params){
+		return  mTts.playSilence(duration, queueMode, params);
+	}
+	
+	//@TargetApi(21)
+	private int doPlaySilence_api21(long duration, int queueMode, String utteranceId){
+		return  mTts.playSilentUtterance(duration, queueMode, utteranceId);
 	}
 
 	private String getNextId() {
@@ -353,6 +441,22 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 	
 	private int getNextIdNumber() {
 		return ++speechId;
+	}
+	
+	private HashMap<String, String> createParamsMap(String utteranceId){
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+		return params;
+	}
+	
+	private Bundle createParamsBundle(float relativeVolume){
+		return null;
+//	 	//TODO? supported bundle params: KEY_PARAM_STREAM, KEY_PARAM_VOLUME, KEY_PARAM_PAN
+//	 	Bundle paramsBundle = new Bundle();
+//	 	paramsBundle.putFloat(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME, relativeVolume);
+//	 	paramsBundle.putInt(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_STREAM, audioStream);
+//	 	paramsBundle.putFloat(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_PAN, pan);
+//	 	return paramsBundle;
 	}
 	
 	/**
