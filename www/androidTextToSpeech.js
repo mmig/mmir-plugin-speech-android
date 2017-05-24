@@ -274,6 +274,8 @@ newMediaPlugin = {
 						}
 						
 						options.language = options.language? options.language : languageManager.getLanguageConfig(_pluginName);
+						
+						options.pauseDuration = options.pauseDuration? options.pauseDuration : void(0);
 				    	
 //				    	var text;
 //			    		if((typeof options !== 'undefined') && commonUtils.isArray(options) ){
@@ -289,12 +291,13 @@ newMediaPlugin = {
 				    		//only set language in native plugin, if necessary
 				    		var lang = options.language !== language? options.language : void(0);
 
-				    		//TODO handle more options: voice, pauseDuration
+				    		//TODO handle more options: voice
 				    		
 			    			androidTtsPlugin.tts(
 					    			text, lang,
 					    			createSuccessWrapper(options.success, options.ready),
-					    			failureCallback
+					    			failureCallback,
+					    			options.pauseDuration
 					    	);
 				    		
 				    	} catch(e){
