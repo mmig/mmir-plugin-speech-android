@@ -78,7 +78,7 @@ newMediaPlugin = {
 			 * 
 			 * @returns {any} the configuration value
 			 * 
-			 * @memberOf WebspeechAudioInput#
+			 * @memberOf AndroidTextToSpeech#
 			 */
 			var _conf = function(path, defaultValue){
 				return _isLegacyMode? config.get(path, true, defaultValue) : config.get(path, defaultValue);
@@ -96,7 +96,7 @@ newMediaPlugin = {
 			var commonUtils = _req('commonUtils');
 			/** 
 			 * @type mmir.ConfigurationManager
-			 * @memberOf AndroidAudioInput#
+			 * @memberOf AndroidTextToSpeech#
 			 */
 			var config = _req('configurationManager');
 			/** 
