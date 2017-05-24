@@ -8,6 +8,9 @@ Cordova plugin (5.x) for the MMIR framework for accessing Android's system speec
 The plugin provides access to Android's speech recognition service (i.e. it does not use / trigger
 the default graphical interface when accessing using recognition via Intents).
 
+NOTE: This plugin version uses `gradle` configuration(s). For a version without `gradle`,
+      see the `gradleless` branch of the repository.
+
 
 This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]: 
 On adding the plugin, 2 MMIR "modules" (for recognition and synthesis) will be copied
