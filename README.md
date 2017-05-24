@@ -98,9 +98,8 @@ for the MediaManager plugins, i.e. edit the JSON file to:
 
     "mediaManager": {
     	"plugins": {
-    		"browser": ["html5AudioOutput.js",
-    		            "webkitAudioInput.js",
-    		            "maryTextToSpeech.js"
+    		"browser": [
+    			...
     		],
     		"cordova": ["cordovaAudioOutput.js",
     		            "androidAudioInput.js",
