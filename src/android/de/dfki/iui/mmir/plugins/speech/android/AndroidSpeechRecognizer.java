@@ -100,7 +100,7 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
     	
     	this.mAudioManager = (AudioManager) this._cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
     	
-    	Utils.verifySpeechRecognitionPermissions(cordova.getActivity());
+    	//Utils.verifySpeechRecognitionPermissions(cordova.getActivity());
 		
 		super.initialize(cordova, webView);
 	}
