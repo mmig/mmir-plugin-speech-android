@@ -38,7 +38,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 	private static final int SDK_VERSION = Build.VERSION.SDK_INT;
 	
-	private static final String PLUGIN_NAME = "AndroidSpeechSynthesizer";
+	private static final String PLUGIN_NAME = "AndroidTTS";
 	private static final Locale DEFAULT_LANGUAGE = Locale.US;
 	// private static final String LOG_TAG = "TTS";
 	private static final int STOPPED = 0;
@@ -103,7 +103,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 					int len = -1;
 					if(ttsText instanceof JSONArray){
 						sentences = (JSONArray) ttsText;
-						len = sentences.length();
+						len = calcSpeechPartsCount(sentences.length());
 					}
 					
 					//TODO for now, always stop current TTS (if there is one active), before starting a new one
@@ -286,9 +286,11 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		Exception error = null;
 		PluginResult result = null;
 		int i=0;
+		int size = sentences.length();
+		int ttsParts = calcSpeechPartsCount(size);
 		
 		int utteranceId = getNextIdNumber();
-		for(int size = sentences.length(); i < size; ++i){
+		for(; i < size; ++i){
 			
 			Object obj = null;
 			try {
@@ -304,7 +306,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 				String text = obj.toString();
 				
 				//create utterance ID
-				String constUtteranceId = getNextId(utteranceId, i+1, size);
+				String constUtteranceId = getNextId(utteranceId, i+1, ttsParts);
 				
 			 	Bundle paramsBundle = null;
 //			 	//TODO? supported bundle params: 
@@ -331,7 +333,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 						} else if(ttsResult == TextToSpeech.SUCCESS && i < size - 1){
 							//-> insert pause between "sentences"
 
-							String pauseUtteranceId = getNextId(utteranceId, i+1, size);
+							String pauseUtteranceId = getNextId(utteranceId, i+1, ttsParts);
 							ttsResult = doPlaySilence(silenceDuration, TextToSpeech.QUEUE_ADD, null, pauseUtteranceId);
 
 							//if pause did cause error: log the error
@@ -374,6 +376,16 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		}
 		return result;
 	}
+
+	/**
+	 * HELPER calculate the count of speech-parts for a list (i.e. including silences etc.)
+	 * @param listSize
+	 * 			the list/array size of speech parts
+	 * @return
+	 */
+	private int calcSpeechPartsCount(int listSize) {
+		return 2 * listSize - 1;//after each speech-part, a silence will be added (except for the last one)
+	}
 	
 	private PluginResult doCreateSpeakSuccessResult(int id){
 		
@@ -399,12 +411,12 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		}
 	}
 
-	@TargetApi(20)
+	//@TargetApi(20)//for API level <= 20
 	private int doQueue_old(String text, int queueType, HashMap<String, String> params, String utteranceId) {
 		return mTts.speak(text, queueType, params);
 	}
 	
-	//@TargetApi(21)
+	@TargetApi(21)
 	private int doQueue_api21(String text, int queueType, Bundle params, String utteranceId) {
 		return mTts.speak(text, queueType, params, utteranceId);
 	}
@@ -421,12 +433,12 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		}
 	}
 
-	@TargetApi(20)
+	//@TargetApi(20)//for API level <= 20
 	private int doPlaySilence_old(long duration, int queueMode, HashMap<String, String> params){
 		return  mTts.playSilence(duration, queueMode, params);
 	}
 	
-	//@TargetApi(21)
+	@TargetApi(21)
 	private int doPlaySilence_api21(long duration, int queueMode, String utteranceId){
 		return  mTts.playSilentUtterance(duration, queueMode, utteranceId);
 	}
