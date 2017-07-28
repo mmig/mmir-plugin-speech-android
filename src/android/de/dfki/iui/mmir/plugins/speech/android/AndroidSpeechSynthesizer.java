@@ -325,27 +325,27 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 					} else {
 						
 						ttsResult = doQueue(text, queueMode, null, paramsBundle, constUtteranceId);
+					}
 						
+					if(ttsResult == TextToSpeech.ERROR){
+						
+						break;
+						
+					} else if(ttsResult == TextToSpeech.SUCCESS && i < size - 1){
+						//-> insert pause between "sentences"
+
+						String pauseUtteranceId = getNextId(utteranceId, i+1, ttsParts);
+						ttsResult = doPlaySilence(silenceDuration, TextToSpeech.QUEUE_ADD, null, pauseUtteranceId);
+
+						//if pause did cause error: log the error
 						if(ttsResult == TextToSpeech.ERROR){
 							
-							break;
+							Log.e(PLUGIN_NAME, "could not insert pause of "+silenceDuration+" ms for sentence at index "+i);
 							
-						} else if(ttsResult == TextToSpeech.SUCCESS && i < size - 1){
-							//-> insert pause between "sentences"
-
-							String pauseUtteranceId = getNextId(utteranceId, i+1, ttsParts);
-							ttsResult = doPlaySilence(silenceDuration, TextToSpeech.QUEUE_ADD, null, pauseUtteranceId);
-
-							//if pause did cause error: log the error
-							if(ttsResult == TextToSpeech.ERROR){
-								
-								Log.e(PLUGIN_NAME, "could not insert pause of "+silenceDuration+" ms for sentence at index "+i);
-								
-								//reset error status
-								//   for evaluation of PluginResult
-								//   -> only consider "real text errors" for that
-								ttsResult = TextToSpeech.SUCCESS;
-							}
+							//reset error status
+							//   for evaluation of PluginResult
+							//   -> only consider "real text errors" for that
+							ttsResult = TextToSpeech.SUCCESS;
 						}
 					}
 					
