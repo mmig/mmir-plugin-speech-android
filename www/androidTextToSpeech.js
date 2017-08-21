@@ -276,6 +276,7 @@ newMediaPlugin = {
 						options.language = options.language? options.language : languageManager.getLanguageConfig(_pluginName);
 						
 						options.pauseDuration = options.pauseDuration? options.pauseDuration : void(0);
+						options.voice = options.voice? options.voice : languageManager.getLanguageConfig(_pluginName, 'voice');
 				    	
 //				    	var text;
 //			    		if((typeof options !== 'undefined') && commonUtils.isArray(options) ){
@@ -297,7 +298,8 @@ newMediaPlugin = {
 					    			text, lang,
 					    			createSuccessWrapper(options.success, options.ready),
 					    			failureCallback,
-					    			options.pauseDuration
+					    			options.pauseDuration,
+					    			options.voice
 					    	);
 				    		
 				    	} catch(e){
