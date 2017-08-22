@@ -1,9 +1,7 @@
 # dfki-mmir-plugin-speech-android
 ----
 
-Cordova plugin (5.x) for the MMIR framework for accessing Android's system speech recognition and synthesis
-
-
+Cordova plugin for the MMIR framework for accessing Android's system speech recognition and synthesis
 
 The plugin provides access to Android's speech recognition service (i.e. it does not use / trigger
 the default graphical interface when accessing using recognition via Intents).
@@ -16,8 +14,12 @@ This Cordova plugin is specifically targeted to be used with the [MMIR framework
 On adding the plugin, 2 MMIR "modules" (for recognition and synthesis) will be copied
 into the platform's resource folders `<www assets>/mmirf/env/media/android*.js`
 
+For details on using (speech) plugins in the MMIR framework, also see the corresponding
+section in the [wiki][2].
+
 # USAGE
 ------
+
 
 ## INSTALLATION
 
@@ -59,31 +61,6 @@ into into the platform folders of the www-resource files to:
 
     /www/mmirf/env/media/*
 
-
-<br>
-TIP: if you are using _Eclipse_ you can add _links_ to these files in your project, so that
-     they appear in your app's `/www` directory at `/www/mmirf/env/media/*` 
-     Either use _Eclipse_'s `New File` dialog or edit `/.project` by adding the following
-     somewhere within the `<projectDescription>` tag:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<projectDescription>
-  ...
-  <linkedResources>
-    <link>
-      <name>www/mmirf/env/media/androidAudioInput.js</name>
-      <type>1</type>
-      <locationURI>$%7BPROJECT_LOC%7D/plugins/dfki-mmir-plugin-speech-android/www/androidAudioInput.js</locationURI>
-    </link>
-    <link>
-      <name>www/mmirf/env/media/androidTextToSpeech.js</name>
-      <type>1</type>
-      <locationURI>$%7BPROJECT_LOC%7D/plugins/dfki-mmir-plugin-speech-android/www/androidTextToSpeech.js</locationURI>
-    </link>
-  </linkedResources>
-  ...
-</projectDescription>
-```
  
 ## MMIR CONFIGURATION
 
@@ -104,9 +81,9 @@ for the MediaManager plugins, i.e. edit the JSON file to:
     		"browser": [
     			...
     		],
-    		"cordova": ["cordovaAudioOutput.js",
-    		            "androidAudioInput.js",
-    		            "androidTextToSpeech.js"
+    		"cordova": ["cordovaAudioOutput",
+    		            "androidAudioInput",
+    		            "androidTextToSpeech"
     		]
     	}
     }
@@ -119,8 +96,51 @@ in order to use the 'native' Android ASR and TTS engine, when the application is
 on Android.
 
 
+# API
+----
 
-## DEVELOPMENT AND BUILDING THE PLUGIN
+
+### Speech Input
+
+A general description for the MMIR speech input API can be found in the [wiki][3].
+
+```javascript
+mmir.MediaManager.recognize([options: Options, statusCallback: Function, failureCallback: Function])
+mmir.MediaManager.startRecord([options: Options, statusCallback: Function, failureCallback: Function])
+```
+
+supported Options by this plugin:  
+ * `success: OPTIONAL Function`, the status-callback (see arg statusCallback)
+ * `error: OPTIONAL Function`, the error callback (see arg failureCallback)
+ * `language: OPTIONAL String`, the language for recognition (if omitted, the current language setting is used)
+ * `intermediate: OTPIONAL Boolean`, set true for receiving intermediate results (NOTE not all ASR engines may support intermediate results)
+ * `results: OTPIONAL Number`, set how many recognition alternatives should be returned at most (NOTE not all ASR engines may support this option)
+ * `mode: OTPIONAL "search" | "dictation"`, set how many recognition alternatives should be returned at most (NOTE not all ASR engines may support this option)
+ * `eosPause: OTPIONAL "short" | "long"`, length of pause after speech for end-of-speech detection (NOTE not all ASR engines may support this option)
+ * `disableImprovedFeedback: OTPIONAL Boolean`, disable improved feedback when using intermediate results (NOTE not all ASR engines may support this option)
+
+### Speech Output
+
+```javascript
+mmir.MediaManager.tts(options: Options | string | Array<string>[, onPlayedCallback: Function, failureCallback: Function, onReadyCallback: Function])
+```
+
+supported Options by this plugin:
+ * `text: String | String[]`, text that should be read aloud
+ * `pauseDuration: OPTIONAL Number`, the length of the pauses between sentences (i.e. for String Arrays) in milliseconds
+ * `language: OPTIONAL String`, the language for synthesis (if omitted, the current language setting is used)
+ * `voice: OPTIONAL String`, the voice (language specific) for synthesis; NOTE that the specific available voices depend on the TTS engine
+ * `success: OPTIONAL Function`, the on-playing-completed callback (see arg onPlayedCallback)
+ * `error: OPTIONAL Function`, the error callback (see arg failureCallback)
+ * `ready: OPTIONAL Function`, the audio-ready callback (see arg onReadyCallback)
+
+
+_Note: the function `textToSpeech()` is a deprecated alias for `tts()`_
+
+
+
+
+# DEVELOPMENT AND BUILDING THE PLUGIN
 ------
 
 NOTE:
@@ -140,9 +160,7 @@ reference the checked-out project from this project:
  and add the CordovaLib project (you may also need to clean / rebuild the project).
 
 
-# API
-----
-t.b.d.
-
 
 [1]: https://github.com/mmig/mmir
+[2]: https://github.com/mmig/mmir/wiki/3.9.2-Speech-Processing-in-MMIR
+[3]: https://github.com/mmig/mmir/wiki/3.9.2-Speech-Processing-in-MMIR#speech-input-api
