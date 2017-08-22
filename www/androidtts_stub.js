@@ -135,19 +135,110 @@ AndroidSpeechSynthesisPlugin.prototype.getLanguage = function(successCallback, e
 };
 
 /**
+ * Finds out the current voice of the AndroidSpeechSynthesisPlugin service.
+ * 
+ * @function getVoice 
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+AndroidSpeechSynthesisPlugin.prototype.getVoice = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "getVoice", []);
+	if(errorCallback){
+ 		errorCallback('Error for getVoice(): not implemented');
+ 	}
+};
+
+/**
  * Sets the language of the AndroidSpeechSynthesisPlugin service.
  * 
  * @function setLanguage 
- * @param {DOMString} lang
+ * @param {String} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidSpeechSynthesisPlugin.prototype.setLanguage = function(lang, successCallback, errorCallback) {
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "setLanguage", [lang]);
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "setLanguage", [lang]);
 	if(errorCallback){
-		errorCallback('Error for setLanguage(): not implemented');
-	}
+ 		errorCallback('Error for setLanguage(): not implemented');
+ 	}
 };
+
+/**
+ * Sets the voice of the AndroidSpeechSynthesisPlugin service.
+ * 
+ * @function setVoice 
+ * @param {String} voice
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+AndroidSpeechSynthesisPlugin.prototype.setVoice = function(voice, successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "setVoice", [voice]);
+	if(errorCallback){
+ 		errorCallback('Error for setVoice(): not implemented');
+ 	}
+};
+
+
+/**
+ * Get all available languages of the AndroidSpeechSynthesisPlugin service:
+ * <code>successCallback(languageList: Array<string>)</code>
+ *
+ * @function getLanguages
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+AndroidSpeechSynthesisPlugin.prototype.getLanguages = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "languageList", []);
+	if(errorCallback){
+ 		errorCallback('Error for getLanguages(): not implemented');
+ 	}
+};
+
+/**
+ * Get all available voices of the AndroidSpeechSynthesisPlugin service:
+ * <code>successCallback(voiceList: Array<string>)</code>
+ *
+ * @function getVoices
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+AndroidSpeechSynthesisPlugin.prototype.getVoices = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "voiceList", []);
+	if(errorCallback){
+ 		errorCallback('Error for getVoices(): not implemented');
+ 	}
+};
+
+/**
+ * Get the default language of the AndroidSpeechSynthesisPlugin service:
+ * <code>successCallback(language: string)</code>
+ *
+ * @function getDefaultLanguage
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+AndroidSpeechSynthesisPlugin.prototype.getDefaultLanguage = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "defaultLanguage", []);
+	if(errorCallback){
+ 		errorCallback('Error for getDefaultLanguage(): not implemented');
+ 	}
+};
+
+/**
+ * Get the default voice of the AndroidSpeechSynthesisPlugin service:
+ * <code>successCallback(voice: string)</code>
+ *
+ * @function getDefaultVoice
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+AndroidSpeechSynthesisPlugin.prototype.getDefaultVoice = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "defaultVoice", []);
+	if(errorCallback){
+ 		errorCallback('Error for getDefaultVoice(): not implemented');
+ 	}
+};
+
 
 /**
  * Cancel AndroidSpeechSynthesisPlugin TTS (if active; do nothing if not active).
