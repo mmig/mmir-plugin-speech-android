@@ -31,7 +31,7 @@
  */
 newMediaPlugin = {
 		/**  @memberOf AndroidTextToSpeech# */
-		initialize: function(callBack, mediaManager){
+		initialize: function(callBack, mediaManager, contextId){
 			
 			/**  @memberOf AndroidTextToSpeech# */
 			var _pluginName = 'androidTextToSpeech';
@@ -207,7 +207,7 @@ newMediaPlugin = {
 					 * @memberOf AndroidTextToSpeech.prototype
 					 */
 					textToSpeech: function(){
-						return this.tts.apply(this, arguments);
+						return mediaManager.perform(contextId, 'tts', arguments);
 					},
 					/**
 					 * Synthesizes ("read out loud") text.
