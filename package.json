@@ -25,11 +25,6 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "engines": {
-    "cordovaDependencies": {
-      "2.0.0": { "cordova": ">100"}
-    }
-  },
   "author": "russa",
   "license": "MIT",
   "bugs": {
