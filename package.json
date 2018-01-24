@@ -27,7 +27,7 @@
   ],
   "engines": [
     {
-      "name": "dfki-mmir-plugin-speech-android",
+      "name": "cordova",
       "version": ">=5.0"
     }
   ],
