@@ -53,6 +53,7 @@
         
         <config-file target="AndroidManifest.xml" parent="/*">
 			<uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
+			<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
         </config-file>
         
         <framework src="com.android.support:support-compat:25.0.1" />
