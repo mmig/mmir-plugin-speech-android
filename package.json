@@ -25,12 +25,11 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=5.0"
+  "engines": {
+    "cordovaDependencies": {
+      "2.0.0": { "cordova": ">100"}
     }
-  ],
+  },
   "author": "russa",
   "license": "MIT",
   "bugs": {
