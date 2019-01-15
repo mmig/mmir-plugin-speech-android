@@ -105,13 +105,13 @@ on Android.
 A general description for the MMIR speech input API can be found in the [wiki][3].
 
 ```javascript
-mmir.MediaManager.recognize([options: Options, statusCallback: Function, failureCallback: Function])
-mmir.MediaManager.startRecord([options: Options, statusCallback: Function, failureCallback: Function])
+mmir.media.recognize([options: Options, statusCallback: Function, failureCallback: Function])
+mmir.media.startRecord([options: Options, statusCallback: Function, failureCallback: Function])
 ```
 
 supported Options by this plugin:  
- * `success: OPTIONAL Function`, the status-callback (see arg statusCallback)
- * `error: OPTIONAL Function`, the error callback (see arg failureCallback)
+ * `success: OPTIONAL Function`, the status-callback (see arg statusCallback in [wiki][3])
+ * `error: OPTIONAL Function`, the error callback (see arg failureCallback in [wiki][3])
  * `language: OPTIONAL String`, the language for recognition (if omitted, the current language setting is used)
  * `intermediate: OTPIONAL Boolean`, set true for receiving intermediate results (NOTE not all ASR engines may support intermediate results)
  * `results: OTPIONAL Number`, set how many recognition alternatives should be returned at most (NOTE not all ASR engines may support this option)
@@ -121,8 +121,10 @@ supported Options by this plugin:
 
 ### Speech Output
 
+A general description for the MMIR speech output API can be found in the [wiki][4].
+
 ```javascript
-mmir.MediaManager.tts(options: Options | string | Array<string>[, onPlayedCallback: Function, failureCallback: Function, onReadyCallback: Function])
+mmir.media.tts(options: Options | string | Array<string>[, onPlayedCallback: Function, failureCallback: Function, onReadyCallback: Function])
 ```
 
 supported Options by this plugin:
@@ -130,9 +132,9 @@ supported Options by this plugin:
  * `pauseDuration: OPTIONAL Number`, the length of the pauses between sentences (i.e. for String Arrays) in milliseconds
  * `language: OPTIONAL String`, the language for synthesis (if omitted, the current language setting is used)
  * `voice: OPTIONAL String`, the voice (language specific) for synthesis; NOTE that the specific available voices depend on the TTS engine
- * `success: OPTIONAL Function`, the on-playing-completed callback (see arg onPlayedCallback)
- * `error: OPTIONAL Function`, the error callback (see arg failureCallback)
- * `ready: OPTIONAL Function`, the audio-ready callback (see arg onReadyCallback)
+ * `success: OPTIONAL Function`, the on-playing-completed callback (see arg onPlayedCallback in [wiki][4])
+ * `error: OPTIONAL Function`, the error callback (see arg failureCallback in [wiki][4])
+ * `ready: OPTIONAL Function`, the audio-ready callback (see arg onReadyCallback in [wiki][4])
 
 
 _Note: the function `textToSpeech()` is a deprecated alias for `tts()`_
@@ -164,3 +166,4 @@ reference the checked-out project from this project:
 [1]: https://github.com/mmig/mmir
 [2]: https://github.com/mmig/mmir/wiki/3.9.2-Speech-Processing-in-MMIR
 [3]: https://github.com/mmig/mmir/wiki/3.9.2-Speech-Processing-in-MMIR#speech-input-api
+[4]: https://github.com/mmig/mmir/wiki/3.9.2-Speech-Processing-in-MMIR#speech-output-api
