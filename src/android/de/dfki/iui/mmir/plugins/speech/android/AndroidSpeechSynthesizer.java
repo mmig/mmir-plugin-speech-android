@@ -3,6 +3,7 @@ package de.dfki.iui.mmir.plugins.speech.android;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,16 +23,16 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
-import android.util.Log;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
+import android.util.Log;
 
 @SuppressWarnings("deprecation")
 public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 	private static final String ACTION_SILENCE = "silence";
 
-	private static final long DEFAULT_SILENCE_DURATION = 500l;
+	private static final long DEFAULT_SILENCE_DURATION = 500L;
 
 	private static final String ACTION_TTS = "speak";
 	private static final String ACTION_STARTUP = "startup";
@@ -66,6 +67,8 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 	public static final String MSG_TTS_STARTED = "TTS_BEGIN";
 	public static final String MSG_TTS_DONE = "TTS_DONE";
 	public static final String MSG_TTS_ERROR = "TTS_ERROR";
+
+	private VoiceFilterSelection lastVoiceSelection = null;
 
 	//"singleton" pattern: only 1 speech at a time (i.e.: no queuing)
 	// -> this is the signifier for TTS-active state (set/reset in UtteranceComletedListener)
@@ -312,7 +315,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 			} else if (ACTION_IS_LANGUAGE_AVAILABLE.equals(action)) {
 
 				if (mTts != null) {
-					Locale loc = new Locale(args.getString(0));
+					Locale loc = getLocale(args.getString(0), true);
 					int available = mTts.isLanguageAvailable(loc);
 					result = new PluginResult(PluginResult.Status.OK, (available < 0) ? "false" : "true");
 				}
@@ -321,7 +324,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 				if (mTts != null) {
 					boolean success = setLanguage(args.getString(0));
-					result = new PluginResult(PluginResult.Status.OK, success ? "false" : "true");
+					result = new PluginResult(PluginResult.Status.OK, success ? "true" : "false");
 				}
 
 			} else if (ACTION_GET_VOICE.equals(action)) {
@@ -339,7 +342,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 				if (mTts != null) {
 					if(SDK_VERSION >= 21){
 						boolean success = setVoice(args.getString(0));
-						result = new PluginResult(PluginResult.Status.OK, success ? "false" : "true");
+						result = new PluginResult(PluginResult.Status.OK, success ? "true" : "false");
 					} else {
 						result = new PluginResult(PluginResult.Status.ERROR, String.format("Cannot set voice to %s: API is %d, but requires >= API 21.", args.getString(0), SDK_VERSION));
 					}
@@ -347,6 +350,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 			}
 			else {
+				result = new PluginResult(PluginResult.Status.ERROR, "Unknown action: " + action);
 				isValidAction = false;
 			}
 
@@ -358,7 +362,8 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 		}
 
-		callbackContext.sendPluginResult(result);
+		if(result != null)
+			callbackContext.sendPluginResult(result);
 
 		return isValidAction;
 	}
@@ -621,31 +626,80 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 	 */
 	private boolean setLanguage(Object lang) {
 
+		Locale loc = getLocale(lang, false);
+
+		if(loc == null)
+			return true;/////////////// EARLY EXIT ////////////////////////
+
+		int available = mTts.setLanguage(loc);
+
+		if(LOG.isLoggable(LOG.DEBUG)){
+			LOG.d(PLUGIN_NAME, String.format("set language to %s: %s", loc, getLangMessage(available)));
+		}
+
+		return (available >= TextToSpeech.LANG_AVAILABLE);
+	}
+
+	/**
+	 * get the Language (Locale) according to <code>lang</code>.
+	 *
+	 * @param lang
+	 * 			the language code:
+	 * 				if not a String, the value will be converted
+	 * 				to a String.
+	 * 			If <code>null</code>, {@link JSONObject#NULL}, or an
+	 * 				empty String, the language will not be changed (and
+	 * 				<code>true</code> will be returned).
+	 * 			Otherwise the Locale object for <code>lang</code>
+	 * 				will be used to set the language of the synthesizer.
+	 * @param isGetDefault
+	 *      if <code>true</code>, always returns a locale
+	 *        even if <code>lang</code> is invalid
+	 *        (then returns the currently set Locale)
+	 * @return
+	 * 		  if <code>isGetDefault</code> is <code>true</code>, always returns
+	 * 	      a Locale object, otherwise returns <code>null</code> if
+	 * 		    <code>lang</code> is <code>null</code> or is empty.
+	 */
+	@TargetApi(21)
+	private Locale getLocale(Object lang, boolean isGetDefault){
+
 		String languageCode;
 
 		if(lang == JSONObject.NULL)
-			return true;/////////////// EARLY EXIT ////////////////////////
+			return !isGetDefault? null : SDK_VERSION >= 21? mTts.getVoice().getLocale() : mTts.getLanguage();/////////////// EARLY EXIT ////////////////////////
 
-		if(lang instanceof String)
-			languageCode = (String) lang;
-		else
-			languageCode = String.valueOf(lang);
+			if(lang instanceof String)
+				languageCode = (String) lang;
+			else
+				languageCode = String.valueOf(lang);
 
-		if(languageCode == null || languageCode.length() < 1){
-			return true;/////////////// EARLY EXIT ////////////////////////
-		}
+			if(languageCode == null || languageCode.length() < 1){
+				return !isGetDefault? null : SDK_VERSION >= 21? mTts.getVoice().getLocale() : mTts.getLanguage();/////////////// EARLY EXIT ////////////////////////
+			}
 
-		Locale loc = new Locale(languageCode);
-		int available = mTts.setLanguage(loc);
-		LOG.d(PLUGIN_NAME, String.format("set language to %s: %s", languageCode, getLangMessage(available)));
-		return (available >= TextToSpeech.LANG_AVAILABLE);
+			String[] parts = languageCode.split("-|_");
+			int len = parts.length;
+			Locale loc;
+			if(len == 3){
+				loc = new Locale(parts[0], parts[1], parts[2]);
+			} else if(len == 2){
+				loc = new Locale(parts[0], parts[1]);
+			} else {
+				if(len != 1 && LOG.isLoggable(LOG.WARN)){
+					LOG.w(PLUGIN_NAME, String.format("unknown format for language code: %s"), languageCode);
+				}
+				loc = new Locale(languageCode);
+			}
+
+			return loc;
 	}
 
 	/**
 	 * Set the Language (Locale) according to <code>lang</code>.
 	 *
 	 * @param voice
-	 * 			the voice name. TODO allow "fuzzy" values like "male" / "female" -> select best (for current language)
+	 * 			the voice name, or a feature value (e.g. gender "male" or "female").
 	 * 			If <code>null</code>, {@link JSONObject#NULL}, or an
 	 * 				empty String, the language will not be changed (and
 	 * 				<code>true</code> will be returned).
@@ -656,7 +710,8 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 	 * 		<code>false</code>, if the voice could not be set to
 	 * 			<code>voice</code>.
 	 */
-	private boolean setVoice(Object voice) {//TODO impl
+	@TargetApi(21)
+	private boolean setVoice(Object voice) {
 
 		String voiceName;
 
@@ -669,6 +724,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 			voiceName = String.valueOf(voice);
 
 		if(voiceName == null || voiceName.length() < 1){
+			// no (valid) parameter: succeeded by not setting voice
 			return true;/////////////// EARLY EXIT ////////////////////////
 		}
 
@@ -676,19 +732,41 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		if(v == null){
 			v = selectBestVoice(voiceName);
 		}
+
 		if(v == null){
-			return true;/////////////// EARLY EXIT ////////////////////////
+			// could not set set voice according to parameter -> failed
+			this.lastVoiceSelection = null;
+			return false;/////////////// EARLY EXIT ////////////////////////
 		}
+
 		int available = mTts.setVoice(v);
 		LOG.d(PLUGIN_NAME, String.format("set voice to %s: %s", voiceName, getLangMessage(available)));
 		return (available == TextToSpeech.SUCCESS);
 	}
 
+	@TargetApi(21)
 	private Voice getVoice(String voiceName){
 
-		for(Voice v : mTts.getVoices()){
-			if(voiceName.equals(v.getName())){
+		if(SDK_VERSION >= 21) {
+
+			final Set<Voice> voices = mTts.getVoices();
+			final int size = voices.size();
+
+			if(this.lastVoiceSelection != null && 
+					this.lastVoiceSelection.selectionSize == size &&
+					this.lastVoiceSelection.locale == null &&
+					this.lastVoiceSelection.filter.equals(voiceName)
+					){
+				final Voice v = this.lastVoiceSelection.voice;
+				if(LOG.isLoggable(LOG.DEBUG)) LOG.d(PLUGIN_NAME, String.format(String.format("getVoice(\"%s\"): using voice from last selecting ->  %s (%s): quality %d | latency %d | features: %s", voiceName, v.getName(), v.getLocale().toString(), v.getQuality(), v.getLatency(), java.util.Arrays.toString(v.getFeatures().toArray()))));
 				return v;
+			}
+
+			for (Voice v : voices) {
+				if (voiceName.equals(v.getName())) {
+					this.lastVoiceSelection = new VoiceFilterSelection(null, voiceName, v, size);
+					return v;
+				}
 			}
 		}
 		return null;
@@ -707,18 +785,30 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 	 * 			either a part of the voice name/ID (ignoring case), or a voice feature
 	 * @return a Voice or null, if no voice matches filter
 	 */
+	@TargetApi(21)
 	private Voice selectBestVoice(String filter){
 
-		final Locale loc;
-		final Voice defVoice;
-		if(SDK_VERSION >= 21){
-			loc = mTts.getVoice().getLocale();
-			defVoice = mTts.getDefaultVoice();
-		} else {
-			loc = mTts.getLanguage();
-			defVoice = null;
+		if(SDK_VERSION < 21){
+			LOG.w(PLUGIN_NAME, String.format("setting voice not supported: require API >= 21, but level is %s", SDK_VERSION));
+			return null;//////////////////////////// EARLY EXIT ////////////////////////////////
 		}
 
+		final Locale loc = mTts.getVoice().getLocale();
+		final Set<Voice> voices = mTts.getVoices();
+		final int size = voices.size();
+
+		if(this.lastVoiceSelection != null && 
+				this.lastVoiceSelection.locale != null &&
+				this.lastVoiceSelection.selectionSize == size &&
+				this.lastVoiceSelection.filter.equals(filter) &&
+				this.lastVoiceSelection.locale.equals(loc)
+				){
+			final Voice v = this.lastVoiceSelection.voice;
+			if(LOG.isLoggable(LOG.DEBUG)) LOG.d(PLUGIN_NAME, String.format(String.format("selectBestVoice(\"%s\"): using voice from last selecting ->  %s (%s): quality %d | latency %d | features: %s", filter, v.getName(), v.getLocale().toString(), v.getQuality(), v.getLatency(), java.util.Arrays.toString(v.getFeatures().toArray()))));
+			return v;
+		}
+
+		final Voice defVoice = mTts.getDefaultVoice();
 		final String notInstalledFeature = TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED;
 
 		TreeSet<Voice> list = new TreeSet<Voice>(new Comparator<Voice>(){
@@ -733,32 +823,46 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 					if(v1.isNetworkConnectionRequired() == v1.isNetworkConnectionRequired()){
 
-						if(v1.getLocale().getDisplayLanguage().equals(v2.getLocale().getDisplayLanguage())){
+						if(v1.getLocale().getISO3Language().equals(v2.getLocale().getISO3Language()) && v1.getLocale().getISO3Country().equals(v2.getLocale().getISO3Country())){
+
+							String isoCode = loc.getISO3Country();
+							int fact = isoCode == null || isoCode.length() == 0 || v1.getLocale().getISO3Country().equals(isoCode)? 1 : 2;
 							int qual = v1.getQuality() - v2.getQuality();
-							if(qual == 0){
-								if(v1.getLatency() == v2.getLatency()){
-									if(defVoice != null){
-										if(defVoice.equals(v1)){
-											return 1;
-										} else if(defVoice.equals(v2)){
-											return -1;
+							if (qual == 0) {
+								if (v1.getLatency() == v2.getLatency()) {
+									if (defVoice != null) {
+										if (defVoice.equals(v1)) {
+											return fact * 1;
+										} else if (defVoice.equals(v2)) {
+											return fact * -1;
 										} else {
-											return v1.getName().compareToIgnoreCase(v2.getName());
+											return fact * v1.getName().compareToIgnoreCase(v2.getName());
 										}
 									} else {
-										return v1.getName().compareToIgnoreCase(v2.getName());
+										return fact * v1.getName().compareToIgnoreCase(v2.getName());
 									}
 								} else {
-									return v1.getLatency() < v2.getLatency()? 1 : -1;
+									return fact * v1.getLatency() < v2.getLatency() ? 1 : -1;
 								}
 							} else {
-								return qual;
+								return fact * qual;
 							}
+
 						} else {
-							if(v1.getLocale().getDisplayLanguage().equals(loc.getDisplayLanguage())){
-								return 1;
-							} else if(v2.getLocale().getDisplayLanguage().equals(loc.getDisplayLanguage())){
-								return -1;
+							if(v1.getLocale().getISO3Language().equals(v2.getLocale().getISO3Language())){
+
+								if(v1.getLocale().getISO3Country().equals(loc.getISO3Country())){
+									return 1;
+								} else if(v2.getLocale().getISO3Country().equals(loc.getISO3Country())) {
+									return -1;
+								} else {
+									return v1.getName().compareToIgnoreCase(v2.getName());
+								}
+
+							} else if(v1.getLocale().getISO3Language().equals(loc.getISO3Language())){
+								return v1.getLocale().getISO3Country().equals(loc.getISO3Country())? 1 : 2;
+							} else if(v2.getLocale().getISO3Language().equals(loc.getISO3Language())){
+								return v2.getLocale().getISO3Country().equals(loc.getISO3Country())? -1 : -2;
 							} else {
 								return v1.getName().compareToIgnoreCase(v2.getName());
 							}
@@ -774,15 +878,34 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 		});
 
-		String lang = loc.getDisplayLanguage();
+		String lang = loc.getISO3Language();
 		boolean isFilter = filter != null && filter.length() > 0;
 		Pattern p = !isFilter? Pattern.compile(".") : Pattern.compile("\\b" + filter.toLowerCase() + "(?:\\b|_)");
+		Pattern pFeat = !isFilter? null : Pattern.compile("=\\b" + filter.toLowerCase() + "(?:\\b)");
 		LOG.d(PLUGIN_NAME, String.format("FILTER voice-list: \"%s\" -> %s", filter, p));
-		for(Voice v : mTts.getVoices()){
-			LOG.d(PLUGIN_NAME, String.format("UNFILTERD -> %s (%s): quality %d | latency %d | features: %s", v.getName(), v.getLocale().toString(), v.getQuality(), v.getLatency(), java.util.Arrays.toString(v.getFeatures().toArray())));
-			Matcher m = p.matcher(v.getName().toLowerCase());
-			if(lang.equals(v.getLocale().getDisplayLanguage()) && (m.find() || v.getFeatures().contains(filter))){
-				list.add(v);
+		for(Voice v : voices){
+
+			if(LOG.isLoggable(LOG.DEBUG)) LOG.d(PLUGIN_NAME, String.format("UNFILTERD -> %s (%s): quality %d | latency %d | features: %s", v.getName(), v.getLocale().toString(), v.getQuality(), v.getLatency(), java.util.Arrays.toString(v.getFeatures().toArray())));
+
+			if(lang.equals(v.getLocale().getISO3Language())){
+				//-> voice must be for selected language
+
+				Matcher m = p.matcher(v.getName().toLowerCase());
+				if((m.find() || v.getFeatures().contains(filter))) {
+
+					//-> if name matches filter/query
+					list.add(v);
+
+				} else {
+
+					for(String feature : v.getFeatures()){
+						Matcher mFeat = pFeat.matcher(feature.toLowerCase());
+						if(mFeat.find()){
+							//-> if feature-value matches filter/query
+							list.add(v);
+						}
+					}
+				}
 			}
 		}
 
@@ -792,12 +915,15 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 
 		if(LOG.isLoggable(LOG.DEBUG)){
+			LOG.d(PLUGIN_NAME, String.format("FILTERED&SORTED for Locale %s (%s) %s", loc.getISO3Language(), loc.getISO3Country(), loc.getVariant()));
 			for(Voice v : list){
 				LOG.d(PLUGIN_NAME, String.format("FILTERED&SORTED -> %s (%s): quality %d | latency %d | features: %s", v.getName(), v.getLocale().toString(), v.getQuality(), v.getLatency(), java.util.Arrays.toString(v.getFeatures().toArray())));
 			}
 		}
 
-		return list.last();
+		final Voice selVoice = list.last();
+		this.lastVoiceSelection = new VoiceFilterSelection(loc, filter, selVoice, size);
+		return selVoice;
 	}
 
 	/**
@@ -807,6 +933,40 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 	 */
 	private boolean isReady() {
 		return (state == AndroidSpeechSynthesizer.STARTED) ? true : false;
+	}
+
+	/**
+	 * helper class for cache the last (successful) voice selection
+	 * 
+	 * -> avoid iterating over voices-list and/or trying to "selecting best matching" voice
+	 *    every time when the the same voice is / keeps being selected
+	 *
+	 */
+	private class VoiceFilterSelection {
+		private Locale locale;
+		private String filter;
+		private Voice voice;
+		private int selectionSize;
+		/**
+		 * 
+		 * @param locale 
+		 * 				the Locale: NULL, if voice is an exact match for filter-field against the voice's name (from available voices listing),
+		 * 				otherwise if "select best" heuristic was used, the Locale that was set when selecting the voice
+		 * @param filter 
+		 * 				the filter/name query for setting the voice; must NOT be NULL
+		 * @param voice 
+		 * 				the corresponding Voice that was determined based on the filter-String (and possibly on the Locale)
+		 * @param selectionSize 
+		 * 				the size of the list of available voices when the voice was selected 
+		 * 				(-> used as primitive check, whether the amount of available voices have changed)
+		 */
+		public VoiceFilterSelection(Locale locale, String filter, Voice voice, int selectionSize) {
+			super();
+			this.locale = locale;
+			this.filter = filter;
+			this.voice = voice;
+			this.selectionSize = selectionSize;
+		}
 	}
 
 
