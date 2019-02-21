@@ -91,11 +91,11 @@
     <!-- iOS platform -->
     <platform name="ios">
     
-       <js-module src="www/androidspeech_stub.js" name="androidSpeechPlugin">
+       <js-module src="www/stub/androidspeech_stub.js" name="androidSpeechPlugin">
           <clobbers target="window.cordova.plugins.androidSpeechPlugin" />
        </js-module>
        
-       <js-module src="www/androidtts_stub.js" name="androidTtsPlugin">
+       <js-module src="www/stub/androidtts_stub.js" name="androidTtsPlugin">
           <clobbers target="window.cordova.plugins.androidTtsPlugin" />
        </js-module>
        
