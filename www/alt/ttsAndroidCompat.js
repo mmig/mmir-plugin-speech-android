@@ -67,8 +67,8 @@
 
 	
 /**
- * part of Cordova plugin: dfki-mmir-plugin-speech-android
- * @version 0.9.6
+ * part of Cordova plugin: mmir-plugin-speech-android
+ * @version 1.0.0
  * @ignore
  */
 
