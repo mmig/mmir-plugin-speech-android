@@ -525,7 +525,7 @@ newMediaPlugin = {
 							
 							//restart:
 							androidSpeechPlugin.startRecord(
-									languageManager.getLanguageConfig(_pluginName),
+									options.language,
 									successCallbackWrapper(currentSuccessCallback, options),
 									failureCallbackWrapper(currentFailureCallback, options),
 									intermediate_results,
