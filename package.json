@@ -1,12 +1,11 @@
 {
-  "name": "dfki-mmir-plugin-speech-android",
-  "version": "0.9.6",
-  "description": "\r\n      Cordova plugin for the Android speech recognizer.\r\n    ",
+  "name": "mmir-plugin-speech-android",
+  "version": "1.0.0",
+  "description": "Cordova plugin for the Android speech recognizer and synthesizer.",
   "cordova": {
-    "id": "dfki-mmir-plugin-speech-android",
+    "id": "mmir-plugin-speech-android",
     "platforms": [
-      "android",
-      "ios"
+      "android"
     ]
   },
   "repository": {
@@ -22,12 +21,38 @@
     "tts",
     "text to speech",
     "ecosystem:cordova",
-    "cordova-android",
-    "cordova-ios"
+    "cordova-android"
   ],
   "engines": {
-    "cordovaDependencies": {
-      "1.0.0": { "cordova": ">100" }
+    "cordovaDependencies": {}
+  },
+  "peerDependencies": {
+    "mmir-lib": "git+https://gitlab-cos.b.dfki.de/mmir/dev_mmir-lib.git#develop/webpack"
+  },
+  "devDependencies": {
+    "mmir-plugin-exports": "git+https://gitlab-cos.b.dfki.de/mmir/mmir-plugin-exports.git"
+  },
+  "main": "./www/asrAndroid.js",
+  "directories": {
+    "lib": "./www"
+  },
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "createplugincompat ./ && pluginexport ./"
+  },
+  "mmir": {
+    "exports": [
+      "./www/ttsAndroid.js"
+    ],
+    "compat": {
+      "./www/asrAndroid.js": {
+        "file": "./www/alt/asrAndroidCompat.js",
+        "type": "media"
+      },
+      "./www/ttsAndroid.js": {
+        "file": "./www/alt/ttsAndroidCompat.js",
+        "type": "media"
+      }
     }
   },
   "author": "russa",
