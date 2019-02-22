@@ -8,7 +8,7 @@ var modeUtil = require('./modeUtil.js');
 
 
 module.exports = function(ctx){
-	console.log('plugin-hook -> ', ctx, ctx.opts, ctx.opts.plugin.pluginInfo);
+//	console.log('plugin-hook -> ', ctx, ctx.opts, ctx.opts.plugin.pluginInfo);
 
 //	var platforms = ctx.opts.platforms? ctx.opts.platforms : ctx.opts.cordova.platforms;
 //	if (platforms.indexOf('android') < 0) {
@@ -24,12 +24,12 @@ module.exports = function(ctx){
 	var pluginDir = plugin.dir;
 
 	var pluginInfo = plugin.pluginInfo;
-	console.log('prefs -> ', pluginInfo.getPreferences());
-	console.log('assests -> ', pluginInfo.getAssets());
-	console.log('files & frameworks -> ', pluginInfo.getFilesAndFrameworks());
-	console.log('source files -> ', pluginInfo.getSourceFiles());
-	console.log('js modules -> ', pluginInfo.getJsModules());
-	console.log('lib files -> ', pluginInfo.getLibFiles());
+//	console.log('prefs -> ', pluginInfo.getPreferences());
+//	console.log('assests -> ', pluginInfo.getAssets());
+//	console.log('files & frameworks -> ', pluginInfo.getFilesAndFrameworks());
+//	console.log('source files -> ', pluginInfo.getSourceFiles());
+//	console.log('js modules -> ', pluginInfo.getJsModules());
+//	console.log('lib files -> ', pluginInfo.getLibFiles());
 
 //	var variables = configUtil.getVariables(ctx, pluginInfo, true);
 //	var compatMode = /^compat$/.test(variables.COMPAT_MODE);
