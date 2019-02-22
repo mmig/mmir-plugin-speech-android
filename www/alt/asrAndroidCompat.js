@@ -75,7 +75,7 @@
 
 
 	
-	return function initialize(){
+	return {initialize: function (){
 	  var origArgs = arguments;
 	  require(['mmirf/mediaManager', 'mmirf/configurationManager', 'mmirf/languageManager', 'mmirf/logger'], function (mediaManager, config, lang, Logger){
     var origInit = (function(){
@@ -836,9 +836,9 @@ return {
 
 }
     })();
-    origInit.apply(null, origArgs);
+    origInit.initialize.apply(null, origArgs);
 });;
-	};
+	}};
 
 
 	//END: define()
