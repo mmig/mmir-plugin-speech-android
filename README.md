@@ -54,8 +54,8 @@ execute the following command in Cordova project's root directory:
 the MMIR modules the give access to the speech recognition / synthesis will be copied
 from the plugin directory 
 
-    /www/androidAudioInput.js
-    /www/androidTextToSpeech.js
+    /www/asrAndroid.js
+    /www/ttsAndroid.js
  
 into into the platform folders of the www-resource files to: 
 
@@ -82,8 +82,8 @@ for the MediaManager plugins, i.e. edit the JSON file to:
     			...
     		],
     		"cordova": ["cordovaAudioOutput",
-    		            "androidAudioInput",
-    		            "androidTextToSpeech"
+    		            "asrAndroid",
+    		            "ttsAndroid"
     		]
     	}
     }
@@ -91,7 +91,7 @@ for the MediaManager plugins, i.e. edit the JSON file to:
  ...
 }
 ```
-i.e. change (or add) the `"cordova"` array entries to `"androidAudioInput.js"` and `"androidTextToSpeech.js"`
+i.e. change (or add) the `"cordova"` array entries to `"asrAndroid.js"` and `"ttsAndroid.js"`
 in order to use the 'native' Android ASR and TTS engine, when the application is run as Cordova app
 on Android.
 
