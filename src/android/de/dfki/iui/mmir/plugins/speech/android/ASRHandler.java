@@ -25,7 +25,7 @@ import android.speech.SpeechRecognizer;
 
 class ASRHandler implements RecognitionListener {
 
-	private static final String JS_PLUGIN_ID = "dfki-mmir-plugin-speech-android.androidSpeechPlugin";
+	private static final String JS_PLUGIN_ID = "dfki-mmir-plugin-speech-android.androidAsrPlugin";
 
 	private static final String ANDROID_SPEECH_EXTRA_UNSTABLE_TEXT = "android.speech.extra.UNSTABLE_TEXT";
 

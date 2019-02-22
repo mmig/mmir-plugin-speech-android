@@ -3,8 +3,8 @@
 <plugin 
     xmlns="http://cordova.apache.org/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-    id="dfki-mmir-plugin-speech-android"
-    version="0.9.6">
+    id="mmir-plugin-speech-android"
+    version="1.0.0">
 
     <name>AndroidSpeechPlugin</name>
     
@@ -22,20 +22,24 @@
         <engine name="cordova" version=">=5.0" />
     </engines>
     
+    <!-- MMIR_PLUGIN_MODE: "normal" | "compat" | "webpack" -->
+    <preference name="MMIR_PLUGIN_MODE" default="normal" />
+    <hook src="res\before_plugin_install_hook.js" type="before_plugin_install" />
+    
     <!-- module implementation for integration into MMIR framework  -->
     <asset
-        src="www/androidAudioInput.js"
+        src="www/asrAndroid.js"
         target="mmirf/env/media/androidAudioInput.js" />
     <asset
-        src="www/androidTextToSpeech.js"
+        src="www/ttsAndroid.js"
         target="mmirf/env/media/androidTextToSpeech.js" />
 
 
     <!-- android -->
     <platform name="android">
     	
-       <js-module src="www/androidspeech.js" name="androidSpeechPlugin">
-          <clobbers target="window.cordova.plugins.androidSpeechPlugin" />
+       <js-module src="www/androidspeech.js" name="androidAsrPlugin">
+          <clobbers target="window.cordova.plugins.androidAsrPlugin" />
        </js-module>
        
        <js-module src="www/androidtts.js" name="androidTtsPlugin">
@@ -91,8 +95,8 @@
     <!-- iOS platform -->
     <platform name="ios">
     
-       <js-module src="www/alt/stub/androidspeech_stub.js" name="androidSpeechPlugin">
-          <clobbers target="window.cordova.plugins.androidSpeechPlugin" />
+       <js-module src="www/alt/stub/androidspeech_stub.js" name="androidAsrPlugin">
+          <clobbers target="window.cordova.plugins.androidAsrPlugin" />
        </js-module>
        
        <js-module src="www/alt/stub/androidtts_stub.js" name="androidTtsPlugin">
