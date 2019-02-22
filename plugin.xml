@@ -11,7 +11,7 @@
     <keywords>cordova,speech,android,asr,speech recognition,tts,text to speech</keywords>
     
     <description>
-      Cordova plugin for the Android speech recognizer.
+      Cordova plugin for the Android speech recognizer and synthesizer
     </description>
     
     <license>MIT</license>
