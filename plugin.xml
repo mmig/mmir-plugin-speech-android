@@ -26,19 +26,53 @@
     <preference name="MMIR_PLUGIN_MODE" default="normal" />
     <hook src="res\before_plugin_install_hook.js" type="before_plugin_install" />
     
+<info>
+----------------------------------------------------------------------------------------------------------
+NOTE: If you you are using MMIR framework &lt; 5.0 you may need to install the plugin in compatiblity mode:
+
+1. edit `[www]/config/configuration.json` and change the entries in `mediaManager.plugins`:
+    * "androidAudioInput" -&gt; "asrAndroid"
+    * "androidTextToSpeech" -&gt; "ttsAndroid"
+
+2. either set variable `MMIR_PLUGIN_MODE=compat` during installation or 
+   specify a `preference` in `config.xml` before installing the plugin
+   (you may need to uninstall the plugin again before setting compat mode)
+
+
+## Install with Variable
+
+run:
+`cordova plugin install ... --variable MMIR_PLUGIN_MODE=compat`
+
+
+## Set Preference
+
+add to `config.xml`:
+`&lt;preference name="MMIR_PLUGIN_MODE" value="compat" /&gt;`
+
+
+## Webpack
+
+If you are using the webpack integration `mmir-webpack` you should install with `webpack` mode, i.e
+`MMIR_PLUGIN_MODE=webpack`
+
+(in this case, not specifying `webpack` mode will introduce some additional unused code)
+----------------------------------------------------------------------------------------------------------
+</info>
+    
     <!-- module implementation for integration into MMIR framework  -->
     <asset
         src="www/asrAndroid.js"
-        target="mmirf/env/media/androidAudioInput.js" />
+        target="mmirf/env/media/asrAndroid.js" />
     <asset
         src="www/ttsAndroid.js"
-        target="mmirf/env/media/androidTextToSpeech.js" />
+        target="mmirf/env/media/asrAndroid.js" />
 
 
     <!-- android -->
     <platform name="android">
     	
-       <js-module src="www/androidspeech.js" name="androidAsrPlugin">
+       <js-module src="www/androidasr.js" name="androidAsrPlugin">
           <clobbers target="window.cordova.plugins.androidAsrPlugin" />
        </js-module>
        
@@ -47,7 +81,7 @@
        </js-module>
 
         <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="AndroidSpeechPlugin" >
+            <feature name="AndroidASRPlugin" >
 		        <param name="android-package" value="de.dfki.iui.mmir.plugins.speech.android.AndroidSpeechRecognizer" />
 		    </feature>
 		    <feature name="AndroidSpeechSynthesisPlugin" >

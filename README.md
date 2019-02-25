@@ -42,11 +42,11 @@ use command:
 
 If plugin source code (from this repository) is located in directory: 
 
-    D:\DevProjects\Eclipse_workplace\mmir-plugin-androidspeech
+    D:\DevProjects\Eclipse_workplace\mmir-plugin-speech-android
 
 execute the following command in Cordova project's root directory: 
 
-    cordova plugin add D:\DevProjects\Eclipse_workplace\mmir-plugin-androidspeech
+    cordova plugin add D:\DevProjects\Eclipse_workplace\mmir-plugin-speech-android
 
 
 ## FILES
