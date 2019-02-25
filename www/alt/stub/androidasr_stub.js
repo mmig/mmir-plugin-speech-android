@@ -30,17 +30,17 @@ var exec = require('cordova/exec');
 
 /**
  *  
- * @return Instance of AndroidSpeechPlugin
+ * @return Instance of AndroidASRPlugin
  */
-var AndroidSpeechPlugin = function() {
+var AndroidASRPlugin = function() {
 	//list of listeners for the "microphone levels changed" event
 	this.__micListener = [];
 };
 
-AndroidSpeechPlugin.prototype.recognize = function(language, successCallback, failureCallback, withIntermediateResults){
+AndroidASRPlugin.prototype.recognize = function(language, successCallback, failureCallback, withIntermediateResults){
 //	 return exec(successCallback,
 //   					 failureCallback,
-//   					 'AndroidSpeechPlugin',
+//   					 'AndroidASRPlugin',
 //   					 'recognize',
 //   					 [language, withIntermediateResults? true : false]);
 	if(failureCallback){
@@ -51,18 +51,18 @@ AndroidSpeechPlugin.prototype.recognize = function(language, successCallback, fa
 /**
  * @deprecated use #startRecord instead
  */
-AndroidSpeechPlugin.prototype.recognizeNoEOS = function(language, successCallback, failureCallback, withIntermediateResults){
+AndroidASRPlugin.prototype.recognizeNoEOS = function(language, successCallback, failureCallback, withIntermediateResults){
 //	this.startRecord(language, successCallback, failureCallback, withIntermediateResults);
 	if(failureCallback){
 		failureCallback('Error for recognizeNoEOS(): not implemented');
 	}
 };
 
-AndroidSpeechPlugin.prototype.startRecord = function(language, successCallback, failureCallback, withIntermediateResults){
+AndroidASRPlugin.prototype.startRecord = function(language, successCallback, failureCallback, withIntermediateResults){
 	
 //	return exec(successCallback,
 //					 failureCallback,
-//					 'AndroidSpeechPlugin',
+//					 'AndroidASRPlugin',
 //					 'startRecording',
 //					 [language, withIntermediateResults? true : false]);
 	if(failureCallback){
@@ -70,11 +70,11 @@ AndroidSpeechPlugin.prototype.startRecord = function(language, successCallback, 
 	}
 };
 
-AndroidSpeechPlugin.prototype.stopRecord = function(successCallback, failureCallback){
+AndroidASRPlugin.prototype.stopRecord = function(successCallback, failureCallback){
 
 //	 return exec(successCallback,
 // 					 failureCallback,
-// 					 'AndroidSpeechPlugin',
+// 					 'AndroidASRPlugin',
 // 					 'stopRecording',
 // 					 []);
 	if(failureCallback){
@@ -82,11 +82,11 @@ AndroidSpeechPlugin.prototype.stopRecord = function(successCallback, failureCall
 	}
 };
 
-AndroidSpeechPlugin.prototype.cancel = function(successCallback, failureCallback){
+AndroidASRPlugin.prototype.cancel = function(successCallback, failureCallback){
 
 //	 return exec(successCallback,
 //   					 failureCallback,
-//   					 'AndroidSpeechPlugin',
+//   					 'AndroidASRPlugin',
 //   					 'cancel',
 //   					 []);
 
@@ -95,11 +95,11 @@ AndroidSpeechPlugin.prototype.cancel = function(successCallback, failureCallback
 	}
 };
 
-AndroidSpeechPlugin.prototype.getLanguages = function(successCallback, failureCallback){
+AndroidASRPlugin.prototype.getLanguages = function(successCallback, failureCallback){
 
 //	 return exec(successCallback,
 //   					 failureCallback,
-//   					 'AndroidSpeechPlugin',
+//   					 'AndroidASRPlugin',
 //   					 'getSupportedLanguages',
 //   					 []);
 
@@ -119,11 +119,11 @@ AndroidSpeechPlugin.prototype.getLanguages = function(successCallback, failureCa
 // *             the recording was started / the last call of getMicLevels()
 // * @param failureCallback
 // */
-//AndroidSpeechPlugin.prototype.getMicLevels = function(successCallback, failureCallback){
+//AndroidASRPlugin.prototype.getMicLevels = function(successCallback, failureCallback){
 //
 //	 return exec(successCallback,
 //  					 failureCallback,
-//  					 'AndroidSpeechPlugin',
+//  					 'AndroidASRPlugin',
 //  					 'getMicLevels',
 //  					 []);
 //};
@@ -143,33 +143,33 @@ AndroidSpeechPlugin.prototype.getLanguages = function(successCallback, failureCa
  * @EXPERIMENTAL
  */
 
-AndroidSpeechPlugin.prototype.fireMicLevelChanged = function(value){
+AndroidASRPlugin.prototype.fireMicLevelChanged = function(value){
 	for(var i=0, size = this.__micListener.length; i < size; ++i){
 		this.__micListener[i](value);
 	}
 };
 
-AndroidSpeechPlugin.prototype.onMicLevelChanged = function(listener){
+AndroidASRPlugin.prototype.onMicLevelChanged = function(listener){
 	var isStart = this.__micListener.length === 0; 
 	this.__micListener.push(listener);
 	
 //	if(isStart){
 //		//start the RMS-changed processing (i.e. fire change-events for microphone-level changed events
-//		return exec(function(){console.info('AndroidSpeechPlugin: started processing microphone-levels');},
-//				 function(err){console.error('AndroidSpeechPlugin: Error on start processing microphone-levels! ' + err);},
-//				 'AndroidSpeechPlugin',
+//		return exec(function(){console.info('AndroidASRPlugin: started processing microphone-levels');},
+//				 function(err){console.error('AndroidASRPlugin: Error on start processing microphone-levels! ' + err);},
+//				 'AndroidASRPlugin',
 //				 'setMicLevelsListener',
 //				 [true]
 //		);
 //	}
 };
 
-AndroidSpeechPlugin.prototype.getMicLevelChangedListeners = function(){
+AndroidASRPlugin.prototype.getMicLevelChangedListeners = function(){
 	//return copy of listener-list
 	return this.__micListener.slice(0,this.__micListener.length);
 };
 
-AndroidSpeechPlugin.prototype.offMicLevelChanged = function(listener){
+AndroidASRPlugin.prototype.offMicLevelChanged = function(listener){
 	var isRemoved = false;
 	var size = this.__micListener.length;
 	if(size){
@@ -191,9 +191,9 @@ AndroidSpeechPlugin.prototype.offMicLevelChanged = function(listener){
 	
 //	if(isRemoved && this.__micListener.length === 0){
 //		//stop RMS-changed processing (no handlers are listening any more!)
-//		return exec(function(){console.info('AndroidSpeechPlugin: stopped processing microphone-levels');},
-//				 function(err){console.error('AndroidSpeechPlugin: Error on stop processing microphone-levels! ' + err);},
-//				 'AndroidSpeechPlugin',
+//		return exec(function(){console.info('AndroidASRPlugin: stopped processing microphone-levels');},
+//				 function(err){console.error('AndroidASRPlugin: Error on stop processing microphone-levels! ' + err);},
+//				 'AndroidASRPlugin',
 //				 'setMicLevelsListener',
 //				 [false]
 //		);
@@ -202,5 +202,5 @@ AndroidSpeechPlugin.prototype.offMicLevelChanged = function(listener){
 	return isRemoved;
 };
 
-module.exports = new AndroidSpeechPlugin();
+module.exports = new AndroidASRPlugin();
 

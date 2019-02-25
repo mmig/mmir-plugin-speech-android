@@ -129,7 +129,7 @@ If you are using the webpack integration `mmir-webpack` you should install with 
     <!-- iOS platform -->
     <platform name="ios">
     
-       <js-module src="www/alt/stub/androidspeech_stub.js" name="androidAsrPlugin">
+       <js-module src="www/alt/stub/androidasr_stub.js" name="androidAsrPlugin">
           <clobbers target="window.cordova.plugins.androidAsrPlugin" />
        </js-module>
        
