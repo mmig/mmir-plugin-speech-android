@@ -84,7 +84,7 @@ If you are using the webpack integration `mmir-webpack` you should install with 
             <feature name="AndroidASRPlugin" >
 		        <param name="android-package" value="de.dfki.iui.mmir.plugins.speech.android.AndroidSpeechRecognizer" />
 		    </feature>
-		    <feature name="AndroidSpeechSynthesisPlugin" >
+		    <feature name="AndroidTTSPlugin" >
 		        <param name="android-package" value="de.dfki.iui.mmir.plugins.speech.android.AndroidSpeechSynthesizer" />
 		    </feature>
         </config-file>

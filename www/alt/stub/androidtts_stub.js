@@ -28,12 +28,12 @@ var exec = require('cordova/exec');
 
 /**
  */
-function AndroidSpeechSynthesisPlugin() {
+function AndroidTTSPlugin() {
 }
 
-AndroidSpeechSynthesisPlugin.STOPPED = 0;
-AndroidSpeechSynthesisPlugin.INITIALIZING = 1;
-AndroidSpeechSynthesisPlugin.STARTED = 2;
+AndroidTTSPlugin.STOPPED = 0;
+AndroidTTSPlugin.INITIALIZING = 1;
+AndroidTTSPlugin.STARTED = 2;
 
 /**
  * Play the passed in text as synthesized speech
@@ -43,9 +43,9 @@ AndroidSpeechSynthesisPlugin.STARTED = 2;
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.tts = function(text, language, successCallback, errorCallback) {
+AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, errorCallback) {
 	
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "speak", [text, language]);
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "speak", [text, language]);
 	if(errorCallback){
 		errorCallback('Error for tts(): not implemented');
 	}
@@ -54,7 +54,7 @@ AndroidSpeechSynthesisPlugin.prototype.tts = function(text, language, successCal
 /**
  * @deprecated use #tts function instead (NOTE the different order of the arguments!)
  */
-AndroidSpeechSynthesisPlugin.prototype.speak = function(text, successCallback, errorCallback, language) {
+AndroidTTSPlugin.prototype.speak = function(text, successCallback, errorCallback, language) {
 //    return this.tts(text, language, successCallback, errorCallback);
 	if(errorCallback){
 		errorCallback('Error for speak(): not implemented');
@@ -69,110 +69,110 @@ AndroidSpeechSynthesisPlugin.prototype.speak = function(text, successCallback, e
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.silence = function(duration, successCallback, errorCallback) {
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "silence", [duration]);
+AndroidTTSPlugin.prototype.silence = function(duration, successCallback, errorCallback) {
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "silence", [duration]);
 	if(errorCallback){
 		errorCallback('Error for silence(): not implemented');
 	}
 };
 
 /**
- * Starts up the AndroidSpeechSynthesisPlugin Service
+ * Starts up the AndroidTTSPlugin Service
  * 
  * @function startup 
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.startup = function(successCallback, errorCallback) {
+AndroidTTSPlugin.prototype.startup = function(successCallback, errorCallback) {
 	
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "startup", []);
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "startup", []);
 	if(errorCallback){
 		errorCallback('Error for startup(): not implemented');
 	}
 };
 
 /**
- * Shuts down the AndroidSpeechSynthesisPlugin Service if you no longer need it.
+ * Shuts down the AndroidTTSPlugin Service if you no longer need it.
  * 
  * @function shutdown 
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.shutdown = function(successCallback, errorCallback) {
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "shutdown", []);
+AndroidTTSPlugin.prototype.shutdown = function(successCallback, errorCallback) {
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "shutdown", []);
 	if(errorCallback){
 		errorCallback('Error for shutdown(): not implemented');
 	}
 };
 
 /**
- * Finds out if the language is currently supported by the AndroidSpeechSynthesisPlugin service.
+ * Finds out if the language is currently supported by the AndroidTTSPlugin service.
  * 
  * @function isLanguageAvailable 
  * @param {DOMSting} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.isLanguageAvailable = function(lang, successCallback, errorCallback) {
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "isLanguageAvailable", [lang]);
+AndroidTTSPlugin.prototype.isLanguageAvailable = function(lang, successCallback, errorCallback) {
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "isLanguageAvailable", [lang]);
 	if(errorCallback){
 		errorCallback('Error for isLanguageAvailable(): not implemented');
 	}
 };
 
 /**
- * Finds out the current language of the AndroidSpeechSynthesisPlugin service.
+ * Finds out the current language of the AndroidTTSPlugin service.
  * 
  * @function successCallback 
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.getLanguage = function(successCallback, errorCallback) {
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "getLanguage", []);
+AndroidTTSPlugin.prototype.getLanguage = function(successCallback, errorCallback) {
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "getLanguage", []);
      if(errorCallback){
  		errorCallback('Error for getLanguage(): not implemented');
  	}
 };
 
 /**
- * Finds out the current voice of the AndroidSpeechSynthesisPlugin service.
+ * Finds out the current voice of the AndroidTTSPlugin service.
  * 
  * @function getVoice 
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.getVoice = function(successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "getVoice", []);
+AndroidTTSPlugin.prototype.getVoice = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "getVoice", []);
 	if(errorCallback){
  		errorCallback('Error for getVoice(): not implemented');
  	}
 };
 
 /**
- * Sets the language of the AndroidSpeechSynthesisPlugin service.
+ * Sets the language of the AndroidTTSPlugin service.
  * 
  * @function setLanguage 
  * @param {String} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.setLanguage = function(lang, successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "setLanguage", [lang]);
+AndroidTTSPlugin.prototype.setLanguage = function(lang, successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "setLanguage", [lang]);
 	if(errorCallback){
  		errorCallback('Error for setLanguage(): not implemented');
  	}
 };
 
 /**
- * Sets the voice of the AndroidSpeechSynthesisPlugin service.
+ * Sets the voice of the AndroidTTSPlugin service.
  * 
  * @function setVoice 
  * @param {String} voice
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.setVoice = function(voice, successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "setVoice", [voice]);
+AndroidTTSPlugin.prototype.setVoice = function(voice, successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "setVoice", [voice]);
 	if(errorCallback){
  		errorCallback('Error for setVoice(): not implemented');
  	}
@@ -180,60 +180,60 @@ AndroidSpeechSynthesisPlugin.prototype.setVoice = function(voice, successCallbac
 
 
 /**
- * Get all available languages of the AndroidSpeechSynthesisPlugin service:
+ * Get all available languages of the AndroidTTSPlugin service:
  * <code>successCallback(languageList: Array<string>)</code>
  *
  * @function getLanguages
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.getLanguages = function(successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "languageList", []);
+AndroidTTSPlugin.prototype.getLanguages = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "languageList", []);
 	if(errorCallback){
  		errorCallback('Error for getLanguages(): not implemented');
  	}
 };
 
 /**
- * Get all available voices of the AndroidSpeechSynthesisPlugin service:
+ * Get all available voices of the AndroidTTSPlugin service:
  * <code>successCallback(voiceList: Array<string>)</code>
  *
  * @function getVoices
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.getVoices = function(successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "voiceList", []);
+AndroidTTSPlugin.prototype.getVoices = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", []);
 	if(errorCallback){
  		errorCallback('Error for getVoices(): not implemented');
  	}
 };
 
 /**
- * Get the default language of the AndroidSpeechSynthesisPlugin service:
+ * Get the default language of the AndroidTTSPlugin service:
  * <code>successCallback(language: string)</code>
  *
  * @function getDefaultLanguage
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.getDefaultLanguage = function(successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "defaultLanguage", []);
+AndroidTTSPlugin.prototype.getDefaultLanguage = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "defaultLanguage", []);
 	if(errorCallback){
  		errorCallback('Error for getDefaultLanguage(): not implemented');
  	}
 };
 
 /**
- * Get the default voice of the AndroidSpeechSynthesisPlugin service:
+ * Get the default voice of the AndroidTTSPlugin service:
  * <code>successCallback(voice: string)</code>
  *
  * @function getDefaultVoice
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.getDefaultVoice = function(successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "defaultVoice", []);
+AndroidTTSPlugin.prototype.getDefaultVoice = function(successCallback, errorCallback) {
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "defaultVoice", []);
 	if(errorCallback){
  		errorCallback('Error for getDefaultVoice(): not implemented');
  	}
@@ -241,17 +241,17 @@ AndroidSpeechSynthesisPlugin.prototype.getDefaultVoice = function(successCallbac
 
 
 /**
- * Cancel AndroidSpeechSynthesisPlugin TTS (if active; do nothing if not active).
+ * Cancel AndroidTTSPlugin TTS (if active; do nothing if not active).
  * 
  * @function cancel
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidSpeechSynthesisPlugin.prototype.cancel = function(successCallback, errorCallback) {
-//     return exec(successCallback, errorCallback, "AndroidSpeechSynthesisPlugin", "cancel", []);
+AndroidTTSPlugin.prototype.cancel = function(successCallback, errorCallback) {
+//     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "cancel", []);
 	if(errorCallback){
 		errorCallback('Error for cancel(): not implemented');
 	}
 };
 
-module.exports = new AndroidSpeechSynthesisPlugin();
+module.exports = new AndroidTTSPlugin();
