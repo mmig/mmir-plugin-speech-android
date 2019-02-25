@@ -1,5 +1,5 @@
 
-import { MediaManagerPluginEntry } from 'mmir-lib';
+import { MediaManagerPluginEntry, MediaPluginEnvType } from 'mmir-lib';
 
 /**
  * (optional) entry "asrAnroid" and "ttsAndroid" in main configuration.json
@@ -18,6 +18,17 @@ export interface PluginConfig {
 
 export interface ASRPluginConfigEntry extends MediaManagerPluginEntry {
 
+ /**
+  * the module/plugin name for the MediaManager plugins configuration
+  * @default "mmir-plugin-speech-android"
+  */
+  mod: 'mmir-plugin-speech-android';
+  /**
+  * the environment(s) in which this plugin can/should be enabled
+   * @default "android"
+   */
+  env: Array< 'android' | 'cordova' | MediaPluginEnvType | string > | 'android' | 'cordova' | MediaPluginEnvType | string;
+
   //TODO?
   // /** OPTIONAL number of n-best results that should (max.) be returned: integer, DEFAULT 1 */
   // results?: number;
@@ -30,6 +41,18 @@ export interface ASRPluginConfigEntry extends MediaManagerPluginEntry {
 }
 
 export interface TTSPluginConfigEntry extends MediaManagerPluginEntry {
+
+ /**
+  * the module/plugin name for the MediaManager plugins configuration
+  * @default "mmir-plugin-speech-android/ttsAndroid"
+  */
+  mod: 'mmir-plugin-speech-android/ttsAndroid';
+ /**
+  * the environment(s) in which this plugin can/should be enabled
+  * @default "android"
+  */
+  env: Array< 'android' | 'cordova' | MediaPluginEnvType | string > | 'android' | 'cordova' | MediaPluginEnvType | string;
+  
   //TODO support credentials via JS?
 }
 
