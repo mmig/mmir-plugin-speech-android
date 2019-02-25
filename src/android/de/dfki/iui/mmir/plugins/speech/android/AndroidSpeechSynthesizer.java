@@ -299,9 +299,56 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 				if (mTts != null) {
 					if(SDK_VERSION >= 21){
+						
+						Locale lang = null;
+						boolean isDetails = false;
+						if(args.length() > 0 && !args.isNull(0)){
+							String langStr = args.optString(0);
+							if(langStr != null && langStr.length() > 0){
+								lang = getLocale(langStr, false);
+							}
+						}
+						if(args.length() > 1 && !args.isNull(1)){
+							isDetails = args.optBoolean(1);
+						}
+						
+						Pattern pnameFemale = createVoiceNamePattern(isDetails? "female" : null);
+						Pattern pfeatFemale = createVoiceFeaturePattern(isDetails? "female" : null);
+						Pattern pnameMale = createVoiceNamePattern(isDetails? "male" : null);
+						Pattern pfeatMale = createVoiceFeaturePattern(isDetails? "male" : null);
+						
+						
 						JSONArray list = new JSONArray();
 						for(Voice v : mTts.getVoices()){
-							list.put(v.getName());
+							
+							if(lang != null){
+								if(!lang.getISO3Language().equals(v.getLocale().getISO3Language()))
+									continue;
+								if(lang.getISO3Country().length() > 0 && !lang.getISO3Country().equals(v.getLocale().getISO3Country()))
+									continue;
+							}
+							
+							if(isDetails){
+								
+								JSONObject entry = new JSONObject();
+								entry.putOpt("name", v.getName());
+								entry.putOpt("language", v.getLocale().toString());
+								
+								String gender;
+								if(isFilterMatch(v, "female", pnameFemale, pfeatFemale)){
+									gender = "female";
+								} else if(isFilterMatch(v, "male", pnameMale, pfeatMale)){
+									gender = "male";
+								} else {
+									gender = "unknown";
+								}
+								entry.putOpt("gender", gender);
+								
+								list.put(entry);
+								
+							} else {
+								list.put(v.getName());
+							}
 						}
 
 						if (mTts != null) {
@@ -880,8 +927,8 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 		String lang = loc.getISO3Language();
 		boolean isFilter = filter != null && filter.length() > 0;
-		Pattern p = !isFilter? Pattern.compile(".") : Pattern.compile("\\b" + filter.toLowerCase() + "(?:\\b|_)");
-		Pattern pFeat = !isFilter? null : Pattern.compile("=\\b" + filter.toLowerCase() + "(?:\\b)");
+		Pattern p = createVoiceNamePattern(isFilter? filter : null);// !isFilter? Pattern.compile(".") : Pattern.compile("\\b" + filter.toLowerCase() + "(?:\\b|_)");
+		Pattern pFeat = createVoiceFeaturePattern(isFilter? filter : null);// !isFilter? null : Pattern.compile("=\\b" + filter.toLowerCase() + "(?:\\b)");
 		LOG.d(PLUGIN_NAME, String.format("FILTER voice-list: \"%s\" -> %s", filter, p));
 		for(Voice v : voices){
 
@@ -890,21 +937,31 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 			if(lang.equals(v.getLocale().getISO3Language())){
 				//-> voice must be for selected language
 
-				Matcher m = p.matcher(v.getName().toLowerCase());
-				if((m.find() || v.getFeatures().contains(filter))) {
-
-					//-> if name matches filter/query
-					list.add(v);
-
-				} else {
-
-					for(String feature : v.getFeatures()){
-						Matcher mFeat = pFeat.matcher(feature.toLowerCase());
-						if(mFeat.find()){
-							//-> if feature-value matches filter/query
-							list.add(v);
-						}
+				if(isFilter){
+					
+//					Matcher m = p.matcher(v.getName().toLowerCase());
+//					if((m.find() || v.getFeatures().contains(filter))) {
+//	
+//						//-> if name matches filter/query
+//						list.add(v);
+//	
+//					} else {
+//	
+//						for(String feature : v.getFeatures()){
+//							Matcher mFeat = pFeat.matcher(feature.toLowerCase());
+//							if(mFeat.find()){
+//								//-> if feature-value matches filter/query
+//								list.add(v);
+//							}
+//						}
+//					}
+					
+					if(isFilterMatch(v, filter, p, pFeat)){
+						list.add(v);
 					}
+					
+				} else {
+					list.add(v);
 				}
 			}
 		}
@@ -924,6 +981,34 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 		final Voice selVoice = list.last();
 		this.lastVoiceSelection = new VoiceFilterSelection(loc, filter, selVoice, size);
 		return selVoice;
+	}
+	
+	private Pattern createVoiceNamePattern(String filter){
+		return filter == null? null : Pattern.compile("\\b" + filter.toLowerCase() + "(?:\\b|_)");
+	}
+	
+	private Pattern createVoiceFeaturePattern(String filter){
+		return filter == null? null : Pattern.compile("=\\b" + filter.toLowerCase() + "(?:\\b)");
+	}
+		
+	private boolean isFilterMatch(Voice v, String filter, Pattern namePattern, Pattern featurePattern){
+		Matcher m = namePattern.matcher(v.getName().toLowerCase());
+		if((m.find() || v.getFeatures().contains(filter))) {
+
+			//-> if name matches filter/query
+			return true;
+
+		} else {
+
+			for(String feature : v.getFeatures()){
+				Matcher mFeat = featurePattern.matcher(feature.toLowerCase());
+				if(mFeat.find()){
+					//-> if feature-value matches filter/query
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

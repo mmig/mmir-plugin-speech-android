@@ -156,7 +156,7 @@ AndroidTTSPlugin.prototype.setLanguage = function(lang, successCallback, errorCa
 /**
  * Sets the voice of the AndroidTTSPlugin service.
  * 
- * @function setVoice 
+ * @function setVoice
  * @param {String} voice
  * @param {Object} successCallback
  * @param {Object} errorCallback
@@ -193,11 +193,31 @@ AndroidTTSPlugin.prototype.getLanguages = function(successCallback, errorCallbac
  * <code>successCallback(voiceList: Array<string>)</code>
  *
  * @function getVoices
+ * @param {String} [language] language code: if specified, only voices for matching the language will be returned
+ * @param {Boolean} [includeDetails] if TRUE, the returned list will be comprised of entries with {name: STRING, language: STRING, gender: "female" | "male"}
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
-AndroidTTSPlugin.prototype.getVoices = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", []);
+AndroidTTSPlugin.prototype.getVoices = function(language, includeDetails, successCallback, errorCallback) {
+	
+	if(typeof language === 'function'){
+		errorCallback = includeDetails;
+		successCallback = language;
+		language = '';
+		includeDetails = false;
+	} else if(typeof includeDetails === 'function'){
+		errorCallback = successCallback;
+		successCallback = includeDetails;
+		if(typeof language === 'boolean'){
+			includeDetails = language;	
+			language = '';
+		} else {
+			includeDetails = false;
+		}
+	}
+	var args = [language, includeDetails];
+	
+    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", args);
 };
 
 /**

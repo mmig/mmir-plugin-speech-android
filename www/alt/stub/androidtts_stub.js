@@ -203,7 +203,25 @@ AndroidTTSPlugin.prototype.getLanguages = function(successCallback, errorCallbac
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getVoices = function(successCallback, errorCallback) {
-//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", []);
+
+	if(typeof language === 'function'){
+		errorCallback = includeDetails;
+		successCallback = language;
+		language = '';
+		includeDetails = false;
+	} else if(typeof includeDetails === 'function'){
+		errorCallback = successCallback;
+		successCallback = includeDetails;
+		if(typeof language === 'boolean'){
+			includeDetails = language;	
+			language = '';
+		} else {
+			includeDetails = false;
+		}
+	}
+//	var args = [language, includeDetails];
+//	
+//    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", args);
 	if(errorCallback){
  		errorCallback('Error for getVoices(): not implemented');
  	}

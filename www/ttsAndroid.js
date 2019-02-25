@@ -265,12 +265,32 @@ return {
 			 * @memberOf AndroidTextToSpeech.prototype
 			 * @see mmir.MediaManager#getVoices
 			 */
-			getVoices: function(successCallback,failureCallback){
+			getVoices: function(options, successCallback, failureCallback){
+				
+				var args = [];
+				if(typeof options === 'function'){
+					
+					failureCallback = successCallback;
+					successCallback = options;
+					
+				} else if(options){
+					
+					if(typeof options === 'string'){
+						
+						args.push(options);
+						
+					} else {
 
-				ttsPlugin.getVoices(
-						successCallback, 
-						failureCallback
-				);
+						if(typeof options.language !== 'undefined'){
+							args.push(options.language);
+						}
+						if(typeof options.details !== 'undefined'){
+							args.push(!!options.details);
+						}
+					}
+				}
+				args.push(successCallback, failureCallback);
+				ttsPlugin.getVoices.apply(ttsPlugin, args);
 
 			}
 		});	
