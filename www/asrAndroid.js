@@ -757,7 +757,15 @@ return {
 				mediaManager._ready(_pluginName);
 
 				asrPlugin.cancel(successCallBack, failureCallBack);
-			}
+			},
+			/**
+			 * @public
+			 * @memberOf AndroidAudioInput.prototype
+			 * @see mmir.MediaManager#getRecognitionLanguages
+			 */
+			getRecognitionLanguages: function(successCallBack,failureCallBack){
+				asrPlugin.getLanguages(successCallBack, failureCallBack);
+			},
 		});
 
 

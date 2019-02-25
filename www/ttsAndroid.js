@@ -242,6 +242,36 @@ return {
 						failureCallback
 				);
 
+			},
+			/**
+			 * @requires Android SDK >= 21
+			 * 
+			 * @public
+			 * @memberOf AndroidTextToSpeech.prototype
+			 * @see mmir.MediaManager#getSpeechLanguages
+			 */
+			getSpeechLanguages: function(successCallback,failureCallback){
+
+				ttsPlugin.getLanguages(
+						successCallback, 
+						failureCallback
+				);
+
+			},
+			/**
+			 * @requires Android SDK >= 21
+			 * 
+			 * @public
+			 * @memberOf AndroidTextToSpeech.prototype
+			 * @see mmir.MediaManager#getVoices
+			 */
+			getVoices: function(successCallback,failureCallback){
+
+				ttsPlugin.getVoices(
+						successCallback, 
+						failureCallback
+				);
+
 			}
 		});	
 		
