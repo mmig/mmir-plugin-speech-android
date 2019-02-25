@@ -9,6 +9,22 @@ module.exports = {
   plugins: {
     ttsAndroid: {
       pluginName: "ttsAndroid",
+      config: [
+        /**
+         * the environment(s) in which this plugin can/should be enabled
+         * @default "android"
+         */
+        "env",
+        /**
+         * the module/plugin name for the MediaManager plugins configuration
+         * @default "mmir-plugin-speech-android/ttsAndroid"
+         */
+        "mod"
+      ],
+      defaultValues: {
+        env: "android",
+        mod: "mmir-plugin-speech-android/ttsAndroid"
+      },
       speechConfig: [
         /** OPTIONAL
          * a specific voice for TTS
@@ -23,7 +39,23 @@ module.exports = {
       ]
     },
     asrAndroid: {
-      pluginName: "asrAndroid"
+      pluginName: "asrAndroid",
+      config: [
+        /**
+         * the environment(s) in which this plugin can/should be enabled
+         * @default "android"
+         */
+        "env",
+        /**
+         * the module/plugin name for the MediaManager plugins configuration
+         * @default "mmir-plugin-speech-android"
+         */
+        "mod"
+      ],
+      defaultValues: {
+        env: "android",
+        mod: "mmir-plugin-speech-android"
+      }
     }
   }
 };

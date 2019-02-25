@@ -94,10 +94,10 @@ return {
 		var logger = Logger.create(_pluginName);
 
 		/** 
-		 * @type AndroidSpeechSynthesisPlugin
+		 * @type AndroidTTSPlugin
 		 * @memberOf AndroidTextToSpeech#
 		 */
-		var androidTtsPlugin = window.cordova.plugins.androidTtsPlugin;
+		var ttsPlugin = window.cordova.plugins.androidTtsPlugin;
 		/** 
 		 * @type String
 		 * @memberOf AndroidTextToSpeech#
@@ -120,7 +120,7 @@ return {
 		}
 
 		//initialize the TTS plugin (with the current language setting)
-		androidTtsPlugin.startup(
+		ttsPlugin.startup(
 
 				function(data){
 
@@ -130,7 +130,7 @@ return {
 					//TODO get & set voice (API in plugin is missing for that ... currently...)
 					//var voice = lang.getLanguageConfig(_pluginName, 'voice');
 
-					androidTtsPlugin.setLanguage(
+					ttsPlugin.setLanguage(
 							language,
 							function(data){
 								logger.info('AndroidTTS.js.setLanguage('+language+'): success -> '+JSON.stringify(data));
@@ -282,7 +282,7 @@ return {
 
 					//TODO handle more options: voice
 
-					androidTtsPlugin.tts(
+					ttsPlugin.tts(
 							text, locale,
 							createSuccessWrapper(options.success, options.ready),
 							failureCallback,
@@ -306,7 +306,37 @@ return {
 			 */
 			cancelSpeech: function(successCallback,failureCallback){
 
-				androidTtsPlugin.cancel(
+				ttsPlugin.cancel(
+						successCallback, 
+						failureCallback
+				);
+
+			},
+			/**
+			 * @requires Android SDK >= 21
+			 * 
+			 * @public
+			 * @memberOf AndroidTextToSpeech.prototype
+			 * @see mmir.MediaManager#getSpeechLanguages
+			 */
+			getSpeechLanguages: function(successCallback,failureCallback){
+
+				ttsPlugin.getLanguages(
+						successCallback, 
+						failureCallback
+				);
+
+			},
+			/**
+			 * @requires Android SDK >= 21
+			 * 
+			 * @public
+			 * @memberOf AndroidTextToSpeech.prototype
+			 * @see mmir.MediaManager#getVoices
+			 */
+			getVoices: function(successCallback,failureCallback){
+
+				ttsPlugin.getVoices(
 						successCallback, 
 						failureCallback
 				);
