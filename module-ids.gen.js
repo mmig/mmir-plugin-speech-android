@@ -24,6 +24,8 @@ var _exportedModules = [
   "mmir-plugin-speech-android/ttsAndroid"
 ];
 var _dependencies = [];
+var _exportedFiles = [];
+var _modes = {};
 function _join(source, target, dict){
   source.forEach(function(item){
     if(!dict[item]){
@@ -32,24 +34,37 @@ function _join(source, target, dict){
     }
   });
 };
-function _getAll(type, isResolve){
+function _getAll(type, mode, isResolve){
+
+  if(typeof mode === 'boolean'){
+    isResolve = mode;
+    mode = void(0);
+  }
 
   var data = this[type];
   var isArray = Array.isArray(data);
   var result = isArray? [] : Object.assign({}, data);
   var dupl = result;
+  var mod = mode && this.modes[mode];
   if(isArray){
     dupl = {};
+    if(mod && mod[type]){
+      _join(this.modes[mode][type], result, dupl);
+    }
     _join(data, result, dupl);
   } else if(isResolve){
     var root = __dirname;
     Object.keys(result).forEach(function(field){
-      result[field] = root + '/' + result[field];
+      var val = result[field];
+      if(mod && mod[field]){
+        val = _paths[mod[field]];
+      }
+      result[field] = root + '/' + val;
     });
   }
   this.dependencies.forEach(function(dep){
     var depExports = require(dep + '/module-ids.gen.js');
-    var depData = depExports.getAll(type, isResolve);
+    var depData = depExports.getAll(type, mode, isResolve);
     if(isArray){
       _join(depData, result, dupl);
     } else {
@@ -59,4 +74,4 @@ function _getAll(type, isResolve){
 
   return result;
 };
-module.exports = {id: _id, paths: _paths, workers: _workers, modules: _exportedModules, dependencies: _dependencies, getAll: _getAll};
+module.exports = {id: _id, paths: _paths, workers: _workers, modules: _exportedModules, files: _exportedFiles, dependencies: _dependencies, modes: _modes, getAll: _getAll};
