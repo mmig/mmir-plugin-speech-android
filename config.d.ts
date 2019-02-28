@@ -24,7 +24,7 @@ export interface ASRPluginConfigEntry extends MediaManagerPluginEntry {
   */
   mod: 'mmir-plugin-speech-android';
  /**
-  * the module/plugin type
+  * the plugin type
   * @default "asr"
   */
   type: 'asr';
@@ -53,7 +53,7 @@ export interface TTSPluginConfigEntry extends MediaManagerPluginEntry {
   */
   mod: 'mmir-plugin-speech-android/ttsAndroid';
  /**
-  * the module/plugin type
+  * the plugin type
   * @default "tts"
   */
   type: 'tts';

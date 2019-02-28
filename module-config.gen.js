@@ -16,7 +16,7 @@ module.exports = {
          */
         "env",
         /**
-         * the module/plugin type
+         * the plugin type
          * @default "tts"
          */
         "type",
@@ -53,7 +53,7 @@ module.exports = {
          */
         "env",
         /**
-         * the module/plugin type
+         * the plugin type
          * @default "asr"
          */
         "type",
