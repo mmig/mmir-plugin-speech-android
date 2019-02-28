@@ -16,6 +16,11 @@ module.exports = {
          */
         "env",
         /**
+         * the module/plugin type
+         * @default "tts"
+         */
+        "type",
+        /**
          * the module/plugin name for the MediaManager plugins configuration
          * @default "mmir-plugin-speech-android/ttsAndroid"
          */
@@ -23,6 +28,7 @@ module.exports = {
       ],
       defaultValues: {
         env: "android",
+        type: "tts",
         mod: "mmir-plugin-speech-android/ttsAndroid"
       },
       speechConfig: [
@@ -47,6 +53,11 @@ module.exports = {
          */
         "env",
         /**
+         * the module/plugin type
+         * @default "asr"
+         */
+        "type",
+        /**
          * the module/plugin name for the MediaManager plugins configuration
          * @default "mmir-plugin-speech-android"
          */
@@ -54,6 +65,7 @@ module.exports = {
       ],
       defaultValues: {
         env: "android",
+        type: "asr",
         mod: "mmir-plugin-speech-android"
       }
     }
