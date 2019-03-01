@@ -27,7 +27,7 @@ section in the [wiki][2].
 
 execute the following command in Cordova project's root directory: 
 
-    cordova plugin add https://github.com/mmig/mmir-plugin-speech-android.git
+    cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git
 
 
 ### From local copy of the repository
