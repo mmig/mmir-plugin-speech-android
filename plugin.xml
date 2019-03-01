@@ -24,7 +24,7 @@
     
     <!-- MMIR_PLUGIN_MODE: "normal" | "compat" | "webpack" -->
     <preference name="MMIR_PLUGIN_MODE" default="normal" />
-    <hook src="res\before_plugin_install_hook.js" type="before_plugin_install" />
+    <hook src="res/before_plugin_install_hook.js" type="before_plugin_install" />
     
 <info>
 ----------------------------------------------------------------------------------------------------------
