@@ -834,7 +834,7 @@ return {
 			 */
 			getRecognitionLanguages: function(successCallBack,failureCallBack){
 				asrPlugin.getLanguages(successCallBack, failureCallBack);
-			},
+			}
 		});
 
 
