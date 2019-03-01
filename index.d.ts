@@ -69,6 +69,9 @@ declare interface PluginMediaManager extends MediaManager {
   recognize: (options?: PluginASROptions, statusCallback?: ASROnStatus, failureCallback?: ASROnError, isIntermediateResults?: boolean) => void;
   startRecord: (options?: PluginASROptions, successCallback?: ASROnStatus, failureCallback?: ASROnError, intermediateResults?: boolean) => void;
   stopRecord: (options?: PluginASROptions, successCallback?: ASROnStatus, failureCallback?: ASROnError) => void;
+  getRecognitionLanguages: (successCallBack?: Function, failureCallBack?: Function) => void;
   
   tts: (options: string | string[] | PluginTTSOptions, successCallback?: TTSOnComplete, failureCallback?: TTSOnError, onInit?: TTSOnReady, ...args: any[]) => void;
+  getSpeechLanguages: (successCallBack?: Function, failureCallBack?: Function) => void;
+  getVoices: (options?: VoiceListOptions, successCallBack?: (voices: Array<string | VoiceDetails>) => void, failureCallBack?: Function) => void;
 }
