@@ -12,7 +12,7 @@ NOTE: This plugin version uses `gradle` configuration(s). For a version without 
 
 This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]: 
 On adding the plugin, 2 MMIR "modules" (for recognition and synthesis) will be copied
-into the platform's resource folders `<www assets>/mmirf/env/media/android*.js`
+into the platform's resource folders `<www assets>/mmirf/env/media/*Android.js`
 
 For details on using (speech) plugins in the MMIR framework, also see the corresponding
 section in the [wiki][2].
@@ -25,9 +25,10 @@ section in the [wiki][2].
 
 ### From GIT repository
 
-execute the following command in Cordova project's root directory: 
+execute the one of the following commands in Cordova project's root directory: 
 
     cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git
+    cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git --variable MMIR_PLUGIN_MODE=<one of "normal" | "compat" | "webpack">
 
 
 ### From local copy of the repository
@@ -81,9 +82,10 @@ for the MediaManager plugins, i.e. edit the JSON file to:
     		"browser": [
     			...
     		],
-    		"cordova": ["cordovaAudioOutput",
-    		            "asrAndroid",
-    		            "ttsAndroid"
+    		"cordova": [{"mod": "asrAndroid", "type": "audio"},
+    		
+    		            {"mod": "asrNuance", "type": "asr"},
+    		            {"mod": "ttsAndroid", "type": "tts"}
     		]
     	}
     }
