@@ -66,7 +66,7 @@ If you are using the webpack integration `mmir-webpack` you should install with 
         target="mmirf/env/media/asrAndroid.js" />
     <asset
         src="www/ttsAndroid.js"
-        target="mmirf/env/media/asrAndroid.js" />
+        target="mmirf/env/media/ttsAndroid.js" />
 
 
     <!-- android -->
