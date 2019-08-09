@@ -12,25 +12,30 @@
 	}
 	var _req = _mmir? _mmir.require : require;
 
-	if(_isLegacyMode3){
-
-		// HELPER: backwards compatibility v3 for module IDs
-		var isArray = _req('util/isArray');
-		var getId = function(ids){
-			if(ids){
-				if(isArray(ids)){
-					return ids.map(function(id){ return id.replace(/^mmirf\//, '');})
-				}
-				return ids.replace(/^mmirf\//, '');
+	var getId, isArray;
+	if(_isLegacyMode3 || _isLegacyMode4){
+		isArray = _req((_isLegacyMode3? '': 'mmirf/') + 'util/isArray');
+		// HELPER: backwards compatibility v4 for module IDs
+		getId = function(ids){
+			if(isArray(ids)){
+				return ids.map(function(id){ return getId(id);});
 			}
-			return ids;
+			return ids? ids.replace(/\bresources$/, 'constants') : ids;
 		};
 		var __req = _req;
 		_req = function(deps, id, success, error){
 			var args = [getId(deps), getId(id), success, error];
 			return __req.apply(null, args);
 		};
+	}
 
+	if(_isLegacyMode3){
+		// HELPER: backwards compatibility v3 for module IDs
+		var __getId = getId;
+		getId = function(ids){
+			if(isArray(ids)) return __getId(ids);
+			return ids? __getId(ids).replace(/^mmirf\//, '') : ids;
+		};
 		//HELPER: backwards compatibility v3 for configurationManager.get():
 		var config = _req('configurationManager');
 		if(!config.__get){
@@ -39,7 +44,6 @@
 				return this.__get(propertyName, defaultValue, useSafeAccess);
 			};
 		}
-
 	}
 
 	if(_isLegacyMode3 || _isLegacyMode4){
@@ -72,7 +76,7 @@
  * @version 1.0.0
  * @ignore
  */
-
+
 
 	
 	return {initialize: function (){
