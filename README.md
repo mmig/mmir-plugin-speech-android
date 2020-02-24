@@ -1,17 +1,18 @@
-# dfki-mmir-plugin-speech-android
+# mmir-plugin-speech-android
 ----
+
+[![MIT license](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![GitHub package.json version](https://img.shields.io/github/package-json/v/mmig/mmir-plugin-speech-android/master)](https://github.com/mmig/mmir-plugin-speech-android)
+[![npm](https://img.shields.io/npm/v/mmir-plugin-speech-android)](https://www.npmjs.com/package/mmir-plugin-speech-android)
+
 
 Cordova plugin for the MMIR framework for accessing Android's system speech recognition and synthesis
 
 The plugin provides access to Android's speech recognition service (i.e. it does not use / trigger
 the default graphical interface when accessing using recognition via Intents).
 
-NOTE: This plugin version uses `gradle` configuration(s). For a version without `gradle`,
-      see the `gradleless` branch of the repository.
-
-
 This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]: 
-On adding the plugin, 2 MMIR "modules" (for recognition and synthesis) will be copied
+On adding the plugin, two MMIR "modules" (for recognition and synthesis) will be copied
 into the platform's resource folders `<www assets>/mmirf/env/media/*Android.js`
 
 For details on using (speech) plugins in the MMIR framework, also see the corresponding
@@ -23,9 +24,16 @@ section in the [wiki][2].
 
 ## INSTALLATION
 
+### From NPM
+
+execute one of the following commands in Cordova project's root directory: 
+
+    cordova plugin add mmir-plugin-speech-android
+    cordova plugin add mmir-plugin-speech-android --variable MMIR_PLUGIN_MODE=<one of "normal" | "compat" | "webpack">
+
 ### From GIT repository
 
-execute the one of the following commands in Cordova project's root directory: 
+execute one of the following commands in Cordova project's root directory: 
 
     cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git
     cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git --variable MMIR_PLUGIN_MODE=<one of "normal" | "compat" | "webpack">
@@ -82,9 +90,9 @@ for the MediaManager plugins, i.e. edit the JSON file to:
     		"browser": [
     			...
     		],
-    		"cordova": [{"mod": "asrAndroid", "type": "audio"},
+    		"cordova": [{"mod": "cordovaAudio", "type": "audio"},
     		
-    		            {"mod": "asrNuance", "type": "asr"},
+    		            {"mod": "asrAndroid", "type": "asr"},
     		            {"mod": "ttsAndroid", "type": "tts"}
     		]
     	}
