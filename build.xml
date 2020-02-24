@@ -11,7 +11,7 @@
 	-->
 	
 	<property name="dir" location="www"/>
-	<property name="files" value="*AudioInput.js,*TextToSpeech.js"/>
+	<property name="files" value="*Android.js"/>
 	<property name="package-info" value="package.json"/>
 	
 	<target name="update-version" description="update files with information from plugin.xml">
