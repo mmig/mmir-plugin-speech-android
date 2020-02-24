@@ -197,26 +197,16 @@ return {
 				options.pauseDuration = options.pauseDuration? options.pauseDuration : void(0);
 				options.voice = options.voice? options.voice : lang.getLanguageConfig(_pluginName, 'voice');
 
-//							var text;
-//							if((typeof options !== 'undefined') && isArray(options) ){
-//							text = options.join('\n');
-//							}
-//							else {
-//							text = options;
-//							}
-
 				var text = options.text;
 
 				try{
 					//only set language in native plugin, if necessary
 					var locale = options.language !== language? options.language : void(0);
 
-					//TODO handle more options: voice
-
 					ttsPlugin.tts(
 							text, locale,
 							createSuccessWrapper(options.success, options.ready),
-							failureCallback,
+							options.error,
 							options.pauseDuration,
 							options.voice
 					);
