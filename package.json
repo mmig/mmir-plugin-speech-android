@@ -27,10 +27,11 @@
     "cordovaDependencies": {}
   },
   "peerDependencies": {
-    "mmir-lib": "git+https://github.com/mmig/mmir-lib.git"
+    "mmir-lib": ">=5"
   },
   "devDependencies": {
-    "mmir-plugin-exports": "git+https://github.com/mmig/mmir-plugin-exports.git"
+    "mmir-plugin-exports": "^1.4.2",
+    "mmir-lib": "^6.0.0"
   },
   "main": "./www/asrAndroid.js",
   "directories": {
