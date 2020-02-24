@@ -39,7 +39,8 @@
   },
   "types": "index.d.ts",
   "scripts": {
-    "build": "createplugincompat ./ && pluginexport ./"
+    "build": "createplugincompat ./ && pluginexport ./",
+    "install-scripts": "copycordovascripts res/js"
   },
   "mmir": {
     "exports": [
