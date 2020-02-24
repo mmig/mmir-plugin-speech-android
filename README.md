@@ -11,7 +11,7 @@ Cordova plugin for the MMIR framework for accessing Android's system speech reco
 The plugin provides access to Android's speech recognition service (i.e. it does not use / trigger
 the default graphical interface when accessing using recognition via Intents).
 
-This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]: 
+This Cordova plugin is specifically targeted to be used with the [MMIR framework][1]:
 On adding the plugin, two MMIR "modules" (for recognition and synthesis) will be copied
 into the platform's resource folders `<www assets>/mmirf/env/media/*Android.js`
 
@@ -26,14 +26,14 @@ section in the [wiki][2].
 
 ### From NPM
 
-execute one of the following commands in Cordova project's root directory: 
+execute one of the following commands in Cordova project's root directory:
 
     cordova plugin add mmir-plugin-speech-android
     cordova plugin add mmir-plugin-speech-android --variable MMIR_PLUGIN_MODE=<one of "normal" | "compat" | "webpack">
 
 ### From GIT repository
 
-execute one of the following commands in Cordova project's root directory: 
+execute one of the following commands in Cordova project's root directory:
 
     cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git
     cordova plugin add git+https://github.com/mmig/mmir-plugin-speech-android.git --variable MMIR_PLUGIN_MODE=<one of "normal" | "compat" | "webpack">
@@ -45,15 +45,15 @@ execute one of the following commands in Cordova project's root directory:
 
 (2) add the plugin to the Cordova project:
 
-use command: 
+use command:
 
     cordova plugin add <file path to plugin directory>
 
-If plugin source code (from this repository) is located in directory: 
+If plugin source code (from this repository) is located in directory:
 
     D:\DevProjects\Eclipse_workplace\mmir-plugin-speech-android
 
-execute the following command in Cordova project's root directory: 
+execute the following command in Cordova project's root directory:
 
     cordova plugin add D:\DevProjects\Eclipse_workplace\mmir-plugin-speech-android
 
@@ -61,42 +61,42 @@ execute the following command in Cordova project's root directory:
 ## FILES
 
 the MMIR modules the give access to the speech recognition / synthesis will be copied
-from the plugin directory 
+from the plugin directory
 
     /www/asrAndroid.js
     /www/ttsAndroid.js
- 
-into into the platform folders of the www-resource files to: 
+
+into into the platform folders of the www-resource files to:
 
     /www/mmirf/env/media/*
 
- 
+
 ## MMIR CONFIGURATION
 
-for configuring the MMIR app to use this plugin/module for its speech input/output do the following: 
+for configuring the MMIR app to use this plugin/module for its speech input/output do the following:
 
-edit the configuration file in 
+edit the configuration file in
 
     /www/config/configuration.json
- 
+
 modify or add (if it does not exist already) the configuration entries
-for the MediaManager plugins, i.e. edit the JSON file to: 
+for the MediaManager plugins, i.e. edit the JSON file to:
 ```javascript
 {
  ...
 
-    "mediaManager": {
-    	"plugins": {
-    		"browser": [
-    			...
-    		],
-    		"cordova": [{"mod": "cordovaAudio", "type": "audio"},
-    		
-    		            {"mod": "asrAndroid", "type": "asr"},
-    		            {"mod": "ttsAndroid", "type": "tts"}
-    		]
-    	}
+  "mediaManager": {
+    "plugins": {
+      "browser": [
+        ...
+      ],
+      "cordova": [{"mod": "cordovaAudio", "type": "audio"},
+
+                  {"mod": "asrAndroid", "type": "asr"},
+                  {"mod": "ttsAndroid", "type": "tts"}
+      ]
     }
+  }
 
  ...
 }
@@ -164,13 +164,12 @@ This project requires Cordova 5.x for building the Java source.
 You can checkout the CordovaLib project from a repository and then
 reference the checked-out project from this project:
 
-(1) checkout the Cordova5Lib project into the same Eclipse workspace: 
+(1) checkout the Cordova5Lib project into the same Eclipse workspace:
 
-    t.b.a.: XXXX/Cordova5Lib 
+    t.b.a.: XXXX/Cordova5Lib
 
 (2) (in Eclipse) open the project Properties for this project, goto "Java Build Path", open tab "Projects"
  and add the CordovaLib project (you may also need to clean / rebuild the project).
-
 
 
 [1]: https://github.com/mmig/mmir
