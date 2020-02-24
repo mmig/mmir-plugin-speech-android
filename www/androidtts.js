@@ -1,4 +1,4 @@
-﻿
+
 var exec = require('cordova/exec');
 
 /**
@@ -12,7 +12,7 @@ AndroidTTSPlugin.STARTED = 2;
 
 /**
  * Play the passed in text as synthesized speech
- * @function speak 
+ * @function speak
  * @param {String|Array<String>} text
  * @param {String} language
  * @param {Object} successCallback
@@ -21,7 +21,7 @@ AndroidTTSPlugin.STARTED = 2;
  * @param {String} [voice]
  */
 AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, errorCallback, pauseDuration, voice) {
-	
+
 	var args = [text, language];
 	if(typeof pauseDuration === 'number'){
 		args.push(pauseDuration);
@@ -36,7 +36,7 @@ AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, error
 		}
 		args.push(voice);
 	}
-	
+
 	return exec(successCallback, errorCallback, "AndroidTTSPlugin", "speak", args);
 };
 
@@ -44,111 +44,111 @@ AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, error
  * @deprecated use #tts function instead (NOTE the different order of the arguments!)
  */
 AndroidTTSPlugin.prototype.speak = function(text, successCallback, errorCallback, language, pauseDuration) {
-    return this.tts(text, language, successCallback, errorCallback, pauseDuration);
+		return this.tts(text, language, successCallback, errorCallback, pauseDuration);
 };
 
-/** 
+/**
  * Play silence for the number of ms passed in as duration
- * 
- * @function silence 
+ *
+ * @function silence
  * @param {long} duration
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.silence = function(duration, successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "silence", [duration]);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "silence", [duration]);
 };
 
 /**
  * Starts up the AndroidTTSPlugin Service
- * 
- * @function startup 
+ *
+ * @function startup
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.startup = function(successCallback, errorCallback) {
-	
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "startup", []);
+
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "startup", []);
 };
 
 /**
  * Shuts down the AndroidTTSPlugin Service if you no longer need it.
- * 
- * @function shutdown 
+ *
+ * @function shutdown
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.shutdown = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "shutdown", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "shutdown", []);
 };
 
 /**
  * Finds out if the language is currently supported by the AndroidTTSPlugin service.
- * 
- * @function isLanguageAvailable 
+ *
+ * @function isLanguageAvailable
  * @param {Sting} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.isLanguageAvailable = function(lang, successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "isLanguageAvailable", [lang]);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "isLanguageAvailable", [lang]);
 };
 
 /**
  * Finds out the current language of the AndroidTTSPlugin service.
- * 
- * @function getLanguage 
+ *
+ * @function getLanguage
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getLanguage = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "getLanguage", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "getLanguage", []);
 };
 
 /**
  * Finds out the current voice of the AndroidTTSPlugin service.
- * 
- * @function getVoice 
+ *
+ * @function getVoice
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getVoice = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "getVoice", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "getVoice", []);
 };
 
 /**
  * Sets the language of the AndroidTTSPlugin service.
- * 
- * @function setLanguage 
+ *
+ * @function setLanguage
  * @param {String} lang
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.setLanguage = function(lang, successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "setLanguage", [lang]);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "setLanguage", [lang]);
 };
 
 /**
  * Sets the voice of the AndroidTTSPlugin service.
- * 
+ *
  * @function setVoice
  * @param {String} voice
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.setVoice = function(voice, successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "setVoice", [voice]);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "setVoice", [voice]);
 };
 
 /**
  * Cancel AndroidTTSPlugin TTS (if active; do nothing if not active).
- * 
+ *
  * @function cancel
  * @param {Object} successCallback
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.cancel = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "cancel", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "cancel", []);
 };
 
 /**
@@ -160,7 +160,7 @@ AndroidTTSPlugin.prototype.cancel = function(successCallback, errorCallback) {
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getLanguages = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "languageList", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "languageList", []);
 };
 
 /**
@@ -174,7 +174,7 @@ AndroidTTSPlugin.prototype.getLanguages = function(successCallback, errorCallbac
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getVoices = function(language, includeDetails, successCallback, errorCallback) {
-	
+
 	if(typeof language === 'function'){
 		errorCallback = includeDetails;
 		successCallback = language;
@@ -184,15 +184,15 @@ AndroidTTSPlugin.prototype.getVoices = function(language, includeDetails, succes
 		errorCallback = successCallback;
 		successCallback = includeDetails;
 		if(typeof language === 'boolean'){
-			includeDetails = language;	
+			includeDetails = language;
 			language = '';
 		} else {
 			includeDetails = false;
 		}
 	}
 	var args = [language, includeDetails];
-	
-    return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", args);
+
+		return exec(successCallback, errorCallback, "AndroidTTSPlugin", "voiceList", args);
 };
 
 /**
@@ -204,7 +204,7 @@ AndroidTTSPlugin.prototype.getVoices = function(language, includeDetails, succes
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getDefaultLanguage = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "defaultLanguage", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "defaultLanguage", []);
 };
 
 /**
@@ -216,7 +216,7 @@ AndroidTTSPlugin.prototype.getDefaultLanguage = function(successCallback, errorC
  * @param {Object} errorCallback
  */
 AndroidTTSPlugin.prototype.getDefaultVoice = function(successCallback, errorCallback) {
-     return exec(successCallback, errorCallback, "AndroidTTSPlugin", "defaultVoice", []);
+		 return exec(successCallback, errorCallback, "AndroidTTSPlugin", "defaultVoice", []);
 };
 
 module.exports = new AndroidTTSPlugin();

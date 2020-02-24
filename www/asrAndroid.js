@@ -1,4 +1,4 @@
-﻿
+
 
 /**
  * part of Cordova plugin: mmir-plugin-speech-android
@@ -20,13 +20,13 @@ return {
 		/**  @memberOf AndroidAudioInput# */
 		var _pluginName = 'asrAndroid';
 
-		/** 
+		/**
 		 * @type mmir.Logger
 		 * @memberOf AndroidAudioInput#
 		 */
 		var logger = new Logger.create(_pluginName);
 
-		/** 
+		/**
 		 * @type AndroidASRPlugin
 		 * @memberOf AndroidAudioInput#
 		 */
@@ -43,12 +43,12 @@ return {
 
 		/**  @memberOf AndroidAudioInput# */
 		var id = 0;
-		/**  
+		/**
 		 * @type Function
 		 * @memberOf AndroidAudioInput#
 		 */
 		var currentSuccessCallback;
-		/**  
+		/**
 		 * @type Function
 		 * @memberOf AndroidAudioInput#
 		 */
@@ -59,9 +59,9 @@ return {
 		var repeat = false;
 		/**
 		 * The last received result (or undefined, if there is none).
-		 * 
+		 *
 		 * [ text : String, score : Number, type : result_types, alternatives : Array, unstable : String ]
-		 * 
+		 *
 		 * @type Array
 		 * @memberOf AndroidAudioInput#
 		 */
@@ -72,40 +72,40 @@ return {
 		 * <br>
 		 * If activated, this will take effect during start-/stop-Record mode <em>with</em> intermediate results.
 		 * <p>
-		 * 
+		 *
 		 * This deals with the fact, that the Nuance recognizer has a very noticeable pause between stopping the recording
-		 * and re-starting the recording for the next voice input. 
-		 * 
+		 * and re-starting the recording for the next voice input.
+		 *
 		 * The improved feedback mode will return recognition results NOT immediately when they are received, but
-		 * when the recognition has restarted (i.e. listens again) - or when it stops 
+		 * when the recognition has restarted (i.e. listens again) - or when it stops
 		 * (i.e. stopRecognition is called or error occurred).
-		 * 
-		 * 
+		 *
+		 *
 		 * This can improve user interactions, since the results will only be shown, when the recognizer is active again,
 		 * i.e. users do not have to actively interpret the START prompt (if it is active!) or other WAIT indicators
 		 * during the time when recording stops and restarts again (i.e. when input-recording is inactive).
-		 * 
+		 *
 		 * Instead they are "prompted" by the appearing text of the last recognition result.
-		 * 
+		 *
 		 * @memberOf AndroidAudioInput#
 		 * @default false: improved feedback mode is enabled by default
 		 */
 		var disable_improved_feedback_mode = false;
 
 		/**
-		 * Counter for error-in-a-row: 
+		 * Counter for error-in-a-row:
 		 * each time an error is encountered, this counter is increased.
 		 * On starting/canceling, or on an internal success/result callback,
 		 * the counter is reset.
-		 * 
+		 *
 		 * Thus, this counter keeps track how many times in a row
 		 * the (internal) error-callback was triggered.
-		 * 
+		 *
 		 * NOTE: this is currently used, to try restarting <code>max_error_retry</code>
-		 * 		 times the ASR, even on "critical" errors (during repeat-mode). 
-		 * 
+		 * 		 times the ASR, even on "critical" errors (during repeat-mode).
+		 *
 		 * @see #max_error_retry
-		 * 
+		 *
 		 * @memberOf AndroidAudioInput#
 		 */
 		var error_counter = 0;
@@ -113,9 +113,9 @@ return {
 		/**
 		 * Maximal number of errors-in-a-row for trying to restart
 		 * recognition in repeat-mode.
-		 * 
+		 *
 		 * @see #error_counter
-		 * 
+		 *
 		 * @memberOf AndroidAudioInput#
 		 * @default 5
 		 */
@@ -123,11 +123,11 @@ return {
 
 //					/**
 //					* Time to wait, before restarting recognition in repeat-mode.
-//					* 
+//					*
 //					* The actual duration is calculated by multiplying this value with the #error_counter.
-//					* 
+//					*
 //					* @see #error_counter
-//					* 
+//					*
 //					* @memberOf AndroidAudioInput#
 //					* @default 10
 //					*/
@@ -186,7 +186,7 @@ return {
 
 		/**
 		 * Result types (returned by the native/Cordova plugin)
-		 * 
+		 *
 		 * @type Enum
 		 * @constant
 		 * @memberOf AndroidAudioInput#
@@ -216,7 +216,7 @@ return {
 
 		/**
 		 * MIC-LEVELS: Name for the event that is emitted, when the input-mircophone's level change.
-		 * 
+		 *
 		 * @private
 		 * @constant
 		 * @memberOf AndroidAudioInput#
@@ -225,7 +225,7 @@ return {
 
 		/**
 		 * MIC-LEVELS: start/stop audio-analysis if listeners get added/removed.
-		 * 
+		 *
 		 * @private
 		 * @memberOf AndroidAudioInput#
 		 */
@@ -267,10 +267,10 @@ return {
 
 		/**
 		 * Creates the wrapper for the success-back:
-		 * 
+		 *
 		 * successcallback(asr_result, asr_score, asr_type, asr_alternatives, asr_unstable) OR in case of error:
 		 * successcallback(asr_result, asr_score, asr_type, asr_error_code, asr_error_suggestion)
-		 * 
+		 *
 		 * @private
 		 * @memberOf AndroidAudioInput#
 		 */
@@ -373,8 +373,8 @@ return {
 
 					if (asr_type === result_types.INTERMEDIATE){
 
-						//if we are in non-repeat mode, then INTERMEDIATE 
-						//results are actually FINAL ones 
+						//if we are in non-repeat mode, then INTERMEDIATE
+						//results are actually FINAL ones
 						// (since we normally have no stopRecording-callback)
 						asr_type = result_types.FINAL;
 
@@ -402,7 +402,7 @@ return {
 
 		/**
 		 * creates the wrapper for the failure callback
-		 * 
+		 *
 		 * @private
 		 * @memberOf AndroidAudioInput#
 		 */
@@ -530,7 +530,7 @@ return {
 						if(logger.isInfo()) logger.info(error_msg+" (code "+error_code+") - continuing ASR process...");
 					}
 					// call error callback on "severe" errors
-					else 
+					else
 //									if (		error_code < 1 //undefined error!!!
 //									|| 	error_code === error_codes_enum.NETWORK
 //									|| 	error_code === error_codes_enum.SERVER
@@ -575,9 +575,9 @@ return {
 			/**
 			 * Start speech recognition (without <em>end-of-speech</em> detection):
 			 * after starting, the recognition continues until {@link #stopRecord} is called.
-			 * 
+			 *
 			 * @async
-			 * 
+			 *
 			 * @param {PlainObject} [options] OPTIONAL
 			 * 		options for Automatic Speech Recognition:
 			 * 		<pre>{
@@ -590,7 +590,7 @@ return {
 			 * 			, eosPause: OTPIONAL "short" | "long", length of pause after speech for end-of-speech detection (NOTE not all ASR engines may support this option)
 			 * 			, disableImprovedFeedback: OTPIONAL Boolean, disable improved feedback when using intermediate results (NOTE not all ASR engines may support this option)
 			 * 		}</pre>
-			 * 
+			 *
 			 * @param {Function} [statusCallback] OPTIONAL
 			 * 			callback function that is triggered when, recognition starts, text results become available, and recognition ends.
 			 * 			The callback signature is:
@@ -603,7 +603,7 @@ return {
 			 * 					unstable: String | Void
 			 * 				)
 			 * 				</pre>
-			 * 			
+			 *
 			 * 			Usually, for status <code>"FINAL" | "INTERIM" | "INTERMEDIATE"</code> text results are returned, where
 			 * 			<pre>
 			 * 			  "INTERIM": an interim result, that might still change
@@ -611,19 +611,19 @@ return {
 			 * 			  "FINAL": a (stable) final result, before the recognition stops
 			 * 			</pre>
 			 * 			If present, the <code>unstable</code> argument provides a preview for the currently processed / recognized text.
-			 * 
+			 *
 			 * 			<br>NOTE that when using <code>intermediate</code> mode, status-calls with <code>"INTERMEDIATE"</code> may
 			 * 			     contain "final intermediate" results, too.
-			 * 
+			 *
 			 * 			<br>NOTE: if used in combination with <code>options.success</code>, this argument will supersede the options
-			 * 
+			 *
 			 * @param {Function} [failureCallback] OPTIONAL
 			 * 			callback function that is triggered when an error occurred.
 			 * 			The callback signature is:
 			 * 				<code>callback(error)</code>
-			 * 
+			 *
 			 * 			<br>NOTE: if used in combination with <code>options.error</code>, this argument will supersede the options
-			 * 
+			 *
 			 * @public
 			 * @memberOf AndroidAudioInput.prototype
 			 * @see mmir.MediaManager#startRecord
@@ -651,7 +651,7 @@ return {
 				options.results = options.results? options.results : DEFAULT_ALTERNATIVE_RESULTS;
 				options.mode = options.mode? options.mode : DEFAULT_LANGUAGE_MODEL;
 				//TODO
-//							options.eosPause = 
+//							options.eosPause =
 
 
 				currentFailureCallback = options.error;
@@ -729,7 +729,7 @@ return {
 				options.results = options.results? options.results : DEFAULT_ALTERNATIVE_RESULTS;
 				options.mode = options.mode? options.mode : DEFAULT_LANGUAGE_MODEL;
 				//TODO
-//							options.eosPause = 
+//							options.eosPause =
 
 
 				repeat = false;

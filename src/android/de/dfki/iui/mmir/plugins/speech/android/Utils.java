@@ -10,85 +10,85 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 
 public class Utils {
-	
-	private static final String NAME = "AndroidSpeechPlugin::Util";
-	
-	// Speech Recognition Permissions
-    private static final int REQUEST_SPEECH_RECOGNITION = 1363699479;
-    private static String[] PERMISSIONS_SPEECH_RECOGNITION = {
-            Manifest.permission.RECORD_AUDIO
-    };
 
-    /**
-     * Checks if the activity has permission(s) for speech recognition
-     *
-     * If the activity does not has permission(s) then the user will be prompted to grant permission(s)
-     *
-     * @param activity
-     */
-    public static void verifySpeechRecognitionPermissions(Activity activity) {
+  private static final String NAME = "AndroidSpeechPlugin::Util";
 
-    	boolean missingPermission = false;
-        // Check if we have permission for speech recognition
-        for(String p : PERMISSIONS_SPEECH_RECOGNITION){
-            int permission = ActivityCompat.checkSelfPermission(activity, p);
-        	if(permission != PackageManager.PERMISSION_GRANTED){
-        		missingPermission = true;
-        	}
-        }
+  // Speech Recognition Permissions
+  private static final int REQUEST_SPEECH_RECOGNITION = 1363699479;
+  private static String[] PERMISSIONS_SPEECH_RECOGNITION = {
+      Manifest.permission.RECORD_AUDIO
+  };
 
-        if (missingPermission) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_SPEECH_RECOGNITION,
-                    REQUEST_SPEECH_RECOGNITION
-            );
-        }
+  /**
+   * Checks if the activity has permission(s) for speech recognition
+   *
+   * If the activity does not has permission(s) then the user will be prompted to grant permission(s)
+   *
+   * @param activity
+   */
+  public static void verifySpeechRecognitionPermissions(Activity activity) {
+
+    boolean missingPermission = false;
+    // Check if we have permission for speech recognition
+    for(String p : PERMISSIONS_SPEECH_RECOGNITION){
+      int permission = ActivityCompat.checkSelfPermission(activity, p);
+      if(permission != PackageManager.PERMISSION_GRANTED){
+        missingPermission = true;
+      }
     }
 
-	public static JSONObject createMessage(Object ...args){
+    if (missingPermission) {
+      // We don't have permission so prompt the user
+      ActivityCompat.requestPermissions(
+          activity,
+          PERMISSIONS_SPEECH_RECOGNITION,
+          REQUEST_SPEECH_RECOGNITION
+          );
+    }
+  }
 
-		JSONObject msg = new JSONObject();
+  public static JSONObject createMessage(Object ...args){
 
-		addToMessage(msg, args);
+    JSONObject msg = new JSONObject();
 
-		return msg;
-	}
+    addToMessage(msg, args);
 
-	public static void addToMessage(JSONObject msg, Object ...args){
+    return msg;
+  }
 
-		int size = args.length;
-		if(size % 2 != 0){
-			LOG.e(NAME, "Invalid argument length (must be even number): "+size);
-		}
+  public static void addToMessage(JSONObject msg, Object ...args){
 
-		Object temp;
-		String name;
+    int size = args.length;
+    if(size % 2 != 0){
+      LOG.e(NAME, "Invalid argument length (must be even number): "+size);
+    }
 
-		for(int i=0; i < size; i+=2){
+    Object temp;
+    String name;
 
-			temp = args[i];
-			if(!(temp instanceof String)){
-				LOG.e(NAME, "Invalid argument type at "+i+" lenght (must be a String): "+temp);
-				name = String.valueOf(temp);
-			} else {
-				name = (String) temp;
-			}
+    for(int i=0; i < size; i+=2){
 
-			if(i+1 < size){
-				temp = args[i+1];
-			} else {
-				temp = null;
-			}
+      temp = args[i];
+      if(!(temp instanceof String)){
+        LOG.e(NAME, "Invalid argument type at "+i+" lenght (must be a String): "+temp);
+        name = String.valueOf(temp);
+      } else {
+        name = (String) temp;
+      }
 
-			try {
+      if(i+1 < size){
+        temp = args[i+1];
+      } else {
+        temp = null;
+      }
 
-				msg.putOpt(name, temp);
+      try {
 
-			} catch (JSONException e) {
-				LOG.e(NAME, "Failed to add value "+temp+" to message object", e);
-			}
-		}
-	}
+        msg.putOpt(name, temp);
+
+      } catch (JSONException e) {
+        LOG.e(NAME, "Failed to add value "+temp+" to message object", e);
+      }
+    }
+  }
 }

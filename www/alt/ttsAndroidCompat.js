@@ -75,12 +75,12 @@
  * @version 1.0.0
  * @ignore
  */
-
+
 
 	
-	return {initialize: function (){
-	  var origArgs = arguments;
-	  require(['mmirf/mediaManager', 'mmirf/configurationManager', 'mmirf/languageManager', 'mmirf/util/isArray', 'mmirf/logger'], function (mediaManager, config, lang, isArray, Logger){
+  return {initialize: function (){
+    var origArgs = arguments;
+    require(['mmirf/mediaManager', 'mmirf/configurationManager', 'mmirf/languageManager', 'mmirf/util/isArray', 'mmirf/logger'], function (mediaManager, config, lang, isArray, Logger){
     var origInit = (function(){
       {
 
@@ -91,24 +91,24 @@ return {
 		/**  @memberOf AndroidTextToSpeech# */
 		var _pluginName = 'ttsAndroid';
 
-		/** 
+		/**
 		 * @type mmir.Logger
 		 * @memberOf AndroidTextToSpeech#
 		 */
 		var logger = Logger.create(_pluginName);
 
-		/** 
+		/**
 		 * @type AndroidTTSPlugin
 		 * @memberOf AndroidTextToSpeech#
 		 */
 		var ttsPlugin = window.cordova.plugins.androidTtsPlugin;
-		/** 
+		/**
 		 * @type String
 		 * @memberOf AndroidTextToSpeech#
 		 */
 		var language;
 
-		/** 
+		/**
 		 * @type Enum<String>
 		 * @memberOf AndroidTextToSpeech#
 		 */
@@ -150,7 +150,7 @@ return {
 		);
 		//TODO destructor: register onpause/exit handler that shuts down the TTS engine
 
-		/** 
+		/**
 		 * @type Function
 		 * @memberOf AndroidTextToSpeech#
 		 */
@@ -203,7 +203,7 @@ return {
 			},
 			/**
 			 * Synthesizes ("read out loud") text.
-			 * 
+			 *
 			 * @param {String|Array<String>|PlainObject} [options] OPTIONAL
 			 * 		if <code>String</code> or <code>Array</code> of <code>String</code>s
 			 * 			  synthesizes the text of the String(s).
@@ -220,28 +220,28 @@ return {
 			 * 			, error: OPTIONAL Function, the error callback (see arg failureCallback)
 			 * 			, ready: OPTIONAL Function, the audio-ready callback (see arg onReadyCallback)
 			 * 		}</pre>
-			 * 
+			 *
 			 * @param {Function} [onPlayedCallback] OPTIONAL
 			 * 			callback that is invoked when the audio of the speech synthesis finished playing:
 			 * 			<pre>onPlayedCallback()</pre>
-			 * 
+			 *
 			 * 			<br>NOTE: if used in combination with <code>options.success</code>, this argument will supersede the options
-			 * 
+			 *
 			 * @param {Function} [failureCallback] OPTIONAL
 			 * 			callback that is invoked in case an error occurred:
 			 * 			<pre>failureCallback(error: String | Error)</pre>
-			 * 
+			 *
 			 * 			<br>NOTE: if used in combination with <code>options.error</code>, this argument will supersede the options
-			 * 
+			 *
 			 * @param {Function} [onReadyCallback] OPTIONAL
 			 * 			callback that is invoked when audio becomes ready / is starting to play.
 			 * 			If, after the first invocation, audio is paused due to preparing the next audio,
 			 * 			then the callback will be invoked with <code>false</code>, and then with <code>true</code>
 			 * 			(as first argument), when the audio becomes ready again, i.e. the callback signature is:
 			 * 			<pre>onReadyCallback(isReady: Boolean, audio: IAudio)</pre>
-			 * 
+			 *
 			 * 			<br>NOTE: if used in combination with <code>options.ready</code>, this argument will supersede the options
-			 * 
+			 *
 			 * @public
 			 * @memberOf AndroidTextToSpeech.prototype
 			 * @see mmir.MediaManager#textToSpeech
@@ -270,26 +270,16 @@ return {
 				options.pauseDuration = options.pauseDuration? options.pauseDuration : void(0);
 				options.voice = options.voice? options.voice : lang.getLanguageConfig(_pluginName, 'voice');
 
-//							var text;
-//							if((typeof options !== 'undefined') && isArray(options) ){
-//							text = options.join('\n');
-//							}
-//							else {
-//							text = options;
-//							}
-
 				var text = options.text;
 
 				try{
 					//only set language in native plugin, if necessary
 					var locale = options.language !== language? options.language : void(0);
 
-					//TODO handle more options: voice
-
 					ttsPlugin.tts(
 							text, locale,
 							createSuccessWrapper(options.success, options.ready),
-							failureCallback,
+							options.error,
 							options.pauseDuration,
 							options.voice
 					);
@@ -311,14 +301,14 @@ return {
 			cancelSpeech: function(successCallback,failureCallback){
 
 				ttsPlugin.cancel(
-						successCallback, 
+						successCallback,
 						failureCallback
 				);
 
 			},
 			/**
 			 * @requires Android SDK >= 21
-			 * 
+			 *
 			 * @public
 			 * @memberOf AndroidTextToSpeech.prototype
 			 * @see mmir.MediaManager#getSpeechLanguages
@@ -326,32 +316,32 @@ return {
 			getSpeechLanguages: function(successCallback,failureCallback){
 
 				ttsPlugin.getLanguages(
-						successCallback, 
+						successCallback,
 						failureCallback
 				);
 
 			},
 			/**
 			 * @requires Android SDK >= 21
-			 * 
+			 *
 			 * @public
 			 * @memberOf AndroidTextToSpeech.prototype
 			 * @see mmir.MediaManager#getVoices
 			 */
 			getVoices: function(options, successCallback, failureCallback){
-				
+
 				var args = [];
 				if(typeof options === 'function'){
-					
+
 					failureCallback = successCallback;
 					successCallback = options;
-					
+
 				} else if(options){
-					
+
 					if(typeof options === 'string'){
-						
+
 						args.push(options);
-						
+
 					} else {
 
 						if(typeof options.language !== 'undefined'){
@@ -366,8 +356,8 @@ return {
 				ttsPlugin.getVoices.apply(ttsPlugin, args);
 
 			}
-		});	
-		
+		});
+
 	}//END: initialize()
 
 };
@@ -376,7 +366,7 @@ return {
     })();
     origInit.initialize.apply(null, origArgs);
 });;
-	}};
+  }};
 
 
 	//END: define()
