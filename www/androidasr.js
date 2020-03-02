@@ -49,58 +49,38 @@ AndroidASRPlugin.prototype.startRecord = function(language, successCallback, fai
 	}
 
 	return exec(successCallback,
-					 failureCallback,
-					 'AndroidASRPlugin',
-					 'startRecording',
-					 args);
+					failureCallback,
+					'AndroidASRPlugin',
+					'startRecording',
+					args);
 };
 
 AndroidASRPlugin.prototype.stopRecord = function(successCallback, failureCallback){
 
 	 return exec(successCallback,
-					 failureCallback,
-					 'AndroidASRPlugin',
-					 'stopRecording',
-					 []);
+					failureCallback,
+					'AndroidASRPlugin',
+					'stopRecording',
+					[]);
 };
 
 AndroidASRPlugin.prototype.cancel = function(successCallback, failureCallback){
 
 	 return exec(successCallback,
-						 failureCallback,
-						 'AndroidASRPlugin',
-						 'cancel',
-						 []);
+						failureCallback,
+						'AndroidASRPlugin',
+						'cancel',
+						[]);
 };
 
 AndroidASRPlugin.prototype.getLanguages = function(successCallback, failureCallback){
 
 	 return exec(successCallback,
-						 failureCallback,
-						 'AndroidASRPlugin',
-						 'getSupportedLanguages',
-						 []);
+						failureCallback,
+						'AndroidASRPlugin',
+						'getSupportedLanguages',
+						[]);
 };
-
-///**
-// * Get the microphone levels ("recording levels") when recording (i.e. when voice recognition is active).
-// *
-// * @EXPERIMENTAL
-// *
-// * @param successCallback
-// * 			callback function which takes one parameter ARRAY:
-// * 			An Array of Float values from range [0,90] that were gathered since
-// *             the recording was started / the last call of getMicLevels()
-// * @param failureCallback
-// */
-//AndroidASRPlugin.prototype.getMicLevels = function(successCallback, failureCallback){
-//
-//	 return exec(successCallback,
-//  					 failureCallback,
-//  					 'AndroidASRPlugin',
-//  					 'getMicLevels',
-//  					 []);
-//};
 
 /**
  * Functions for listening to the microphone levels
@@ -114,7 +94,6 @@ AndroidASRPlugin.prototype.getLanguages = function(successCallback, failureCallb
  * get the list of all currently registered listeners
  *  getMicLevelChangedListeners() : Array[Function]
  *
- * @EXPERIMENTAL
  */
 
 AndroidASRPlugin.prototype.fireMicLevelChanged = function(value){
@@ -130,10 +109,10 @@ AndroidASRPlugin.prototype.onMicLevelChanged = function(listener){
 	if(isStart){
 		//start the RMS-changed processing (i.e. fire change-events for microphone-level changed events
 		return exec(function(){console.info('AndroidASRPlugin: started processing microphone-levels');},
-				 function(err){console.error('AndroidASRPlugin: Error on start processing microphone-levels! ' + err);},
-				 'AndroidASRPlugin',
-				 'setMicLevelsListener',
-				 [true]
+				function(err){console.error('AndroidASRPlugin: Error on start processing microphone-levels! ' + err);},
+				'AndroidASRPlugin',
+				'setMicLevelsListener',
+				[true]
 		);
 	}
 };
@@ -166,10 +145,10 @@ AndroidASRPlugin.prototype.offMicLevelChanged = function(listener){
 	if(isRemoved && this.__micListener.length === 0){
 		//stop RMS-changed processing (no handlers are listening any more!)
 		return exec(function(){console.info('AndroidASRPlugin: stopped processing microphone-levels');},
-				 function(err){console.error('AndroidASRPlugin: Error on stop processing microphone-levels! ' + err);},
-				 'AndroidASRPlugin',
-				 'setMicLevelsListener',
-				 [false]
+				function(err){console.error('AndroidASRPlugin: Error on stop processing microphone-levels! ' + err);},
+				'AndroidASRPlugin',
+				'setMicLevelsListener',
+				[false]
 		);
 	}
 
@@ -196,12 +175,12 @@ AndroidASRPlugin.prototype.offMicLevelChanged = function(listener){
 function onMessageFromNative(msg) {
 
 		if (msg.action == 'miclevels') {
-								_instance.fireMicLevelChanged(msg.value);
-							} else if (msg.action == 'plugin') {
-								//TODO handle plugin status messages (for now there is only an init-completed message...)
-								console.log('[AndroidASRPlugin] Plugin status: "' + msg.status+'"');
-							} else {
-									throw new Error('[AndroidASRPlugin] Unknown action "' + msg.action+'": ', msg);
+			_instance.fireMicLevelChanged(msg.value);
+		} else if (msg.action == 'plugin') {
+			//TODO handle plugin status messages (for now there is only an init-completed message...)
+			console.log('[AndroidASRPlugin] Plugin status: "' + msg.status+'"');
+		} else {
+			throw new Error('[AndroidASRPlugin] Unknown action "' + msg.action+'": ', msg);
 		}
 }
 
@@ -214,8 +193,8 @@ if (cordova.platformId === 'android' || cordova.platformId === 'amazon-fireos' |
 		channel.waitForInitialization('onAndroidSpeechPluginReady');
 
 		channel.onCordovaReady.subscribe(function() {
-				exec(onMessageFromNative, undefined, 'AndroidASRPlugin', 'msg_channel', []);
-				channel.initializationComplete('onAndroidSpeechPluginReady');
+			exec(onMessageFromNative, undefined, 'AndroidASRPlugin', 'msg_channel', []);
+			channel.initializationComplete('onAndroidSpeechPluginReady');
 		});
 }
 
