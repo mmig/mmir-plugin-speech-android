@@ -7,6 +7,7 @@
 var _id = "mmir-plugin-speech-android";
 var _paths = {
   "mmir-plugin-speech-android/androidasr": "www/androidasr.js",
+  "mmir-plugin-speech-android/androidcapabilities": "www/androidcapabilities.js",
   "mmir-plugin-speech-android/androidtts": "www/androidtts.js",
   "mmir-plugin-speech-android/asrAndroid": "www/asrAndroid.js",
   "mmir-plugin-speech-android/ttsAndroid": "www/ttsAndroid.js",
@@ -15,6 +16,7 @@ var _paths = {
   "mmir-plugin-speech-android/ttsAndroidCompat": "www/alt/ttsAndroidCompat.js",
   "mmir-plugin-speech-android/ttsAndroidWebpack": "www/alt/ttsAndroidWebpack.js",
   "mmir-plugin-speech-android/androidasr_stub": "www/alt/stub/androidasr_stub.js",
+  "mmir-plugin-speech-android/androidcapabilities_stub": "www/alt/stub/androidcapabilities_stub.js",
   "mmir-plugin-speech-android/androidtts_stub": "www/alt/stub/androidtts_stub.js",
   "mmir-plugin-speech-android": "www/asrAndroid.js"
 };
