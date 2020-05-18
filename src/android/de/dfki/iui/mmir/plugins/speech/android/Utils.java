@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 
 public class Utils {
@@ -14,10 +15,91 @@ public class Utils {
   private static final String NAME = "AndroidSpeechPlugin::Util";
 
   // Speech Recognition Permissions
-  private static final int REQUEST_SPEECH_RECOGNITION = 1363699479;
-  private static String[] PERMISSIONS_SPEECH_RECOGNITION = {
+  public static final int REQUEST_SPEECH_RECOGNITION = 1363699479;
+  public static String[] PERMISSIONS_SPEECH_RECOGNITION = {
       Manifest.permission.RECORD_AUDIO
   };
+
+  //Speech Synthesis Permissions
+  public static final int REQUEST_SPEECH_SYNTHESIS = 1363699480;
+  public static String[] PERMISSIONS_SPEECH_SYNTHESIS = {};//NOTE no special permissions required for built-in speech synthesis
+
+  /**
+   * Checks if the activity has permission(s) for speech recognition
+   *
+   * @param activity
+   */
+  static boolean isPermissionMissing(@NonNull Activity activity, @NonNull String[] permissions) {
+
+    boolean missingPermission = false;
+    // Check if we have permissions 
+    for(String p : permissions){
+      int permission = ActivityCompat.checkSelfPermission(activity, p);
+      if(permission != PackageManager.PERMISSION_GRANTED){
+        missingPermission = true;
+        break;
+      }
+    }
+
+    return missingPermission;
+  }
+
+  /**
+   * prompt user to allow for (required)  permission(s)
+   *
+   * @param activity
+   */
+  static void requestPermissions(@NonNull Activity activity, @NonNull String[] permissions, int requestCode) {
+    ActivityCompat.requestPermissions(activity, permissions, requestCode);
+  }
+
+  /**
+   * Checks if the activity has permission(s) for speech recognition
+   *
+   * @param activity
+   */
+  public static boolean isSpeechRecognitionPermissionMissing(@NonNull Activity activity) {
+
+    return isPermissionMissing(activity, PERMISSIONS_SPEECH_RECOGNITION);
+  }
+
+
+  /**
+   * prompt user to allow for speech recognition (i.e. enabled its required  permission(s))
+   *
+   * @param activity
+   */
+  public static void requestSpeechRecognitionPermissions(Activity activity) {
+    requestPermissions(
+      activity,
+      PERMISSIONS_SPEECH_RECOGNITION,
+      REQUEST_SPEECH_RECOGNITION
+    );
+  }
+  
+  /**
+   * Checks if the activity has permission(s) for speech synthesis
+   *
+   * @param activity
+   */
+  public static boolean isSpeechSynthesisPermissionMissing(@NonNull Activity activity) {
+
+    return isPermissionMissing(activity, PERMISSIONS_SPEECH_SYNTHESIS);
+  }
+
+
+  /**
+   * prompt user to allow for speech synthesis (i.e. enabled its required  permission(s))
+   *
+   * @param activity
+   */
+  public static void requestSpeechSynthesisPermissions(Activity activity) {
+    requestPermissions(
+      activity,
+      PERMISSIONS_SPEECH_SYNTHESIS,
+      REQUEST_SPEECH_SYNTHESIS
+    );
+  }
 
   /**
    * Checks if the activity has permission(s) for speech recognition
@@ -28,22 +110,11 @@ public class Utils {
    */
   public static void verifySpeechRecognitionPermissions(Activity activity) {
 
-    boolean missingPermission = false;
-    // Check if we have permission for speech recognition
-    for(String p : PERMISSIONS_SPEECH_RECOGNITION){
-      int permission = ActivityCompat.checkSelfPermission(activity, p);
-      if(permission != PackageManager.PERMISSION_GRANTED){
-        missingPermission = true;
-      }
-    }
+    boolean missingPermission = isSpeechRecognitionPermissionMissing(activity);
 
     if (missingPermission) {
       // We don't have permission so prompt the user
-      ActivityCompat.requestPermissions(
-          activity,
-          PERMISSIONS_SPEECH_RECOGNITION,
-          REQUEST_SPEECH_RECOGNITION
-          );
+      requestSpeechRecognitionPermissions(activity);
     }
   }
 
