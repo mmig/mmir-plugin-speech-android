@@ -146,6 +146,8 @@ supported Options by this plugin:
  * `error: OPTIONAL Function`, the error callback (see arg failureCallback in [wiki][4])
  * `ready: OPTIONAL Function`, the audio-ready callback (see arg onReadyCallback in [wiki][4])
 
+ * `fileUri: OTPIONAL String`, CUSTOM an absolute file URI, if given, will store synthesized text to the file instead of playing the audio
+
 
 _Note: the function `textToSpeech()` is a deprecated alias for `tts()`_
 

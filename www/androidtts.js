@@ -20,7 +20,7 @@ AndroidTTSPlugin.STARTED = 2;
  * @param {Number} [pauseDuration]
  * @param {String} [voice]
  */
-AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, errorCallback, pauseDuration, voice) {
+AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, errorCallback, pauseDuration, voice, fileUri) {
 
 	var args = [text, language];
 	if(typeof pauseDuration === 'number'){
@@ -35,6 +35,17 @@ AndroidTTSPlugin.prototype.tts = function(text, language, successCallback, error
 			args.push(-1);
 		}
 		args.push(voice);
+	}
+	if(fileUri){
+		if(args.length === 2){
+			//args for native plugin are positional: add default pause if necessary
+			args.push(-1);
+		}
+		if(args.length === 3){
+			//args for native plugin are positional: add default voice if necessary
+			args.push(null);
+		}
+		args.push(fileUri);
 	}
 
 	return exec(successCallback, errorCallback, "AndroidTTSPlugin", "speak", args);

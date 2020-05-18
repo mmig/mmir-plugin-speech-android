@@ -145,7 +145,8 @@ return {
 			 * 			, voice: OPTIONAL String, the voice (language specific) for synthesis; NOTE that the specific available voices depend on the TTS engine
 			 * 			, success: OPTIONAL Function, the on-playing-completed callback (see arg onPlayedCallback)
 			 * 			, error: OPTIONAL Function, the error callback (see arg failureCallback)
-			 * 			, ready: OPTIONAL Function, the audio-ready callback (see arg onReadyCallback)
+			 * 			, ready: OPTIONAL Function, the audio-ready callback (see arg onReadyCallback),
+			 * 			, fileUri: OPTIONAL String, [CUSTOM PARAMETER] file URI for storing the synthesized text instead of playing it
 			 * 		}</pre>
 			 *
 			 * @param {Function} [onPlayedCallback] OPTIONAL
@@ -208,7 +209,8 @@ return {
 							createSuccessWrapper(options.success, options.ready),
 							options.error,
 							options.pauseDuration,
-							options.voice
+							options.voice,
+							options.fileUri
 					);
 
 				} catch(e){

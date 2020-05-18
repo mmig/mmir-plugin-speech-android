@@ -1,12 +1,16 @@
 package de.dfki.iui.mmir.plugins.speech.android;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
+import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -16,16 +20,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
-import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
-import android.speech.tts.UtteranceProgressListener;
-import android.speech.tts.Voice;
-import android.util.Log;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("deprecation")
 public class AndroidSpeechSynthesizer extends CordovaPlugin {
@@ -125,6 +129,20 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
           }
         }
 
+        String fileUrl = null;
+        if(args.length() > 4){
+          try {
+            // Optional file storage path
+            String fileUri = args.getString(4);
+            if(fileUri != null && fileUri.length() > 0) {
+                fileUrl = fileUri.replaceAll("\\.wav$", "");
+            }
+          }
+          catch (Exception e) {
+            Log.e(PLUGIN_NAME, String.format(ACTION_TTS + " exception: %s", e.toString()));
+          }
+        }
+
         //prepare & read text:
         if (args.length() > 0 && isLangOk && isReady()) {
 
@@ -163,9 +181,9 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
           isCanceled = false;
 
           if(sentences != null){
-            result = queueSentence((JSONArray)ttsText, pause);
+            result = queueSentence((JSONArray)ttsText, pause, fileUrl);
           } else if (ttsText != null) {
-            result = queueText(ttsText.toString());
+            result = queueText(ttsText.toString(), fileUrl);
           } else {
             result = new PluginResult(PluginResult.Status.ERROR, "invalid argument: cannot invoke TTS for NULL argument.");
           }
@@ -344,6 +362,9 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
                 }
                 entry.putOpt("gender", gender);
 
+                entry.putOpt("local", !v.isNetworkConnectionRequired());
+                entry.putOpt("quality", getVoiceQuality(v).toString());
+
                 list.put(entry);
 
               } else {
@@ -415,7 +436,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     return isValidAction;
   }
 
-  private PluginResult queueText(String text) {
+  private PluginResult queueText(String text, String fileUrl) {
     //create utterance ID
 
     PluginResult result = null;
@@ -429,7 +450,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     int ttsResult;
     Exception error = null;
     try {
-      ttsResult = doQueue(text, TextToSpeech.QUEUE_FLUSH, null, params, utteranceId);//TODO: should this be QUEUE_ADD? configurable/parameterized?
+      ttsResult = doQueue(text, TextToSpeech.QUEUE_FLUSH, null, params, utteranceId,  fileUrl);//TODO: should this be QUEUE_ADD? configurable/parameterized?
       if(ttsResult == TextToSpeech.SUCCESS){
         result =  doCreateSpeakSuccessResult(idNumber);
         result.setKeepCallback(true);
@@ -440,12 +461,12 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     }
 
     if(ttsResult == TextToSpeech.ERROR){
-      result = new PluginResult(PluginResult.Status.ERROR, error.toString());//TODO include error's stacktrace?
+      result = new PluginResult(PluginResult.Status.ERROR, error == null? "Failed to queue text for utterance "+utteranceId : error.toString());//TODO include error's stacktrace?
     }
     return result;
   }
 
-  private PluginResult queueSentence(JSONArray sentences, long silenceDuration) {
+  private PluginResult queueSentence(JSONArray sentences, long silenceDuration, String fileUrl) {
 
     int ttsResult = TextToSpeech.ERROR;
     Exception error = null;
@@ -489,7 +510,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
             ttsResult = doPlaySilence(silenceDuration, queueMode, null, constUtteranceId);
           } else {
 
-            ttsResult = doQueue(text, queueMode, null, paramsBundle, constUtteranceId);
+            ttsResult = doQueue(text, queueMode, null, paramsBundle, constUtteranceId, fileUrl);
           }
 
           if(ttsResult == TextToSpeech.ERROR){
@@ -565,25 +586,55 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
   }
 
-  private int doQueue(String text, int queueType, HashMap<String, String> params, Bundle paramsBundle, String utteranceId) {
+  private int doQueue(String text, int queueType, HashMap<String, String> params, Bundle paramsBundle, String utteranceId, String fileUrl) throws URISyntaxException {
     if(SDK_VERSION < 21){
       if(params == null && utteranceId != null){
         params = createParamsMap(utteranceId);
       }
-      return doQueue_old(text, queueType, params, utteranceId);
+      return doQueue_old(text, queueType, params, utteranceId, fileUrl);
     } else {
-      return doQueue_api21(text, queueType, paramsBundle, utteranceId);
+      return doQueue_api21(text, queueType, paramsBundle, utteranceId, fileUrl);
     }
   }
 
   //@TargetApi(20)//for API level <= 20
-  private int doQueue_old(String text, int queueType, HashMap<String, String> params, String utteranceId) {
+  private int doQueue_old(String text, int queueType, HashMap<String, String> params, String utteranceId, String fileUrl) throws URISyntaxException {
+    if(fileUrl != null && fileUrl.length() > 0){
+      String ext = getFileSuffix_old(utteranceId, mTts.getLanguage());
+      return mTts.synthesizeToFile(text, params, new File(new URI(fileUrl+ext)).getAbsolutePath());
+    }
     return mTts.speak(text, queueType, params);
   }
 
   @TargetApi(21)
-  private int doQueue_api21(String text, int queueType, Bundle params, String utteranceId) {
+  private int doQueue_api21(String text, int queueType, Bundle params, String utteranceId, String fileUrl) throws URISyntaxException {
+    if(fileUrl != null && fileUrl.length() > 0){
+        String ext = getFileSuffix_api21(utteranceId, mTts.getVoice());
+        return mTts.synthesizeToFile(text, params, new File(new URI(fileUrl+ext)), utteranceId);
+    }
     return mTts.speak(text, queueType, params, utteranceId);
+  }
+
+  @TargetApi(21)
+  private String getFileSuffix_api21(String utteranceId, Voice voice) {
+    String voiceName = voice.getName();
+    StringBuilder sb = new StringBuilder();
+    sb.append("_id_");
+    for(int i=0, len = voiceName.length(); i < len; ++i){
+      char c = voiceName.charAt(i);
+      if((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_'){
+        sb.append(c);
+      } else {
+        sb.append('_');
+      }
+    }
+    sb.append("_").append(utteranceId).append(".wav");
+    return sb.toString();
+  }
+
+  //@TargetApi(20)//for API level <= 20
+  private String getFileSuffix_old(String utteranceId, Locale locale) {
+    return "_id_"+locale.getISO3Language()+"-"+locale.getISO3Country()+"_"+utteranceId+".wav";
   }
 
 
@@ -819,6 +870,34 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     return null;
   }
 
+
+  private  VoiceQuality getVoiceQuality(Voice v) {
+    if (SDK_VERSION >= 21) {
+      return doGetVoiceQuality(v);
+    }
+    else {
+      return VoiceQuality.UNKNOWN;
+    }
+  }
+
+  @TargetApi(21)
+  private  VoiceQuality doGetVoiceQuality(Voice v) {
+    switch (v.getQuality()){
+      case Voice.QUALITY_VERY_LOW:
+        return VoiceQuality.VERY_LOW;
+      case Voice.QUALITY_LOW:
+        return VoiceQuality.LOW;
+      case Voice.QUALITY_NORMAL:
+        return VoiceQuality.NORMAL;
+      case Voice.QUALITY_HIGH:
+        return VoiceQuality.HIGH;
+      case Voice.QUALITY_VERY_HIGH:
+        return VoiceQuality.VERY_HIGH;
+      default:
+        return VoiceQuality.UNKNOWN;
+    }
+  }
+
   /**
    * Try to find the "best" voice using the
    * voices' properties a sorting criteria:
@@ -991,6 +1070,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     return filter == null? null : Pattern.compile("=\\b" + filter.toLowerCase() + "(?:\\b)");
   }
 
+  @TargetApi(21)
   private boolean isFilterMatch(Voice v, String filter, Pattern namePattern, Pattern featurePattern){
     Matcher m = namePattern.matcher(v.getName().toLowerCase());
     if((m.find() || v.getFeatures().contains(filter))) {
@@ -1018,6 +1098,10 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
    */
   private boolean isReady() {
     return (state == AndroidSpeechSynthesizer.STARTED) ? true : false;
+  }
+
+  private enum VoiceQuality {
+    UNKNOWN, VERY_LOW, LOW, NORMAL, HIGH, VERY_HIGH
   }
 
   /**
