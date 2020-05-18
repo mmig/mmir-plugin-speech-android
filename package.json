@@ -20,6 +20,8 @@
     "speech recognition",
     "tts",
     "text to speech",
+    "mmir",
+    "mmir-plugin",
     "ecosystem:cordova",
     "cordova-android"
   ],
