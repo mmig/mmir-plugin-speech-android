@@ -1,5 +1,5 @@
 
-import { MediaManagerPluginEntry, MediaPluginEnvType } from 'mmir-lib';
+import { MediaManagerPluginEntry, MediaPluginEnvType, SpeechConfigPluginEntry } from 'mmir-lib';
 
 /**
  * (optional) entry "asrAnroid" and "ttsAndroid" in main configuration.json
@@ -41,7 +41,7 @@ export interface ASRPluginConfigEntry extends MediaManagerPluginEntry {
   //TODO?
   // /** OPTIONAL  set recognition mode */
   // mode?: 'search' | 'dictation';
-  
+
   //TODO support credentials via JS?
 }
 
@@ -62,7 +62,7 @@ export interface TTSPluginConfigEntry extends MediaManagerPluginEntry {
   * @default "android"
   */
   env: Array< 'android' | 'cordova' | MediaPluginEnvType | string > | 'android' | 'cordova' | MediaPluginEnvType | string;
-  
+
   //TODO support credentials via JS?
 }
 

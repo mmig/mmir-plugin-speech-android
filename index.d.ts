@@ -5,13 +5,13 @@ export * from './config';
 import { MediaManager, ASROnStatus, ASROnError, ASRMode, EOSPause, ASROptions } from 'mmir-lib';
 import { TTSOnError, TTSOnComplete, TTSOnReady, TTSOptions , VoiceListOptions , VoiceDetails } from 'mmir-lib';
 
-declare interface PluginASROptions extends ASROptions {
+export interface PluginASROptions extends ASROptions {
   /**
    * [supported option]
    * set language/country for ASR
    */
   language?: string;
-  
+
   /**
    * [supported option]
    * set true for receiving intermediate results
@@ -25,19 +25,19 @@ declare interface PluginASROptions extends ASROptions {
    * @default 1
    */
   results?: number;
-  
+
   /**
    * [supported option]
    * set recognition mode
    */
   mode?: ASRMode;
-  
+
   /**
    * [supported option]
    * length of pause after speech for end-of-speech detection
    */
   eosPause?: EOSPause;
-  
+
   /**
    * [supported option]
    * disable improved feedback when using intermediate results
@@ -46,7 +46,7 @@ declare interface PluginASROptions extends ASROptions {
 }
 
 
-declare interface PluginTTSOptions extends TTSOptions {
+export interface PluginTTSOptions extends TTSOptions {
   /**
    * [supported option]
    * set language/country for TTS
@@ -57,7 +57,7 @@ declare interface PluginTTSOptions extends TTSOptions {
    * set specific voice for TTS
    */
   voice?: string | 'male' | 'female';
-  
+
   /** [supported option]
    * set specific pause duration between sentences (in milliseconds)
    */
@@ -65,12 +65,12 @@ declare interface PluginTTSOptions extends TTSOptions {
 }
 
 
-declare interface PluginMediaManager extends MediaManager {
+export interface PluginMediaManager extends MediaManager {
   recognize: (options?: PluginASROptions, statusCallback?: ASROnStatus, failureCallback?: ASROnError, isIntermediateResults?: boolean) => void;
   startRecord: (options?: PluginASROptions, successCallback?: ASROnStatus, failureCallback?: ASROnError, intermediateResults?: boolean) => void;
   stopRecord: (options?: PluginASROptions, successCallback?: ASROnStatus, failureCallback?: ASROnError) => void;
   getRecognitionLanguages: (successCallBack?: Function, failureCallBack?: Function) => void;
-  
+
   tts: (options: string | string[] | PluginTTSOptions, successCallback?: TTSOnComplete, failureCallback?: TTSOnError, onInit?: TTSOnReady, ...args: any[]) => void;
   getSpeechLanguages: (successCallBack?: Function, failureCallBack?: Function) => void;
   getVoices: (options?: VoiceListOptions, successCallBack?: (voices: Array<string | VoiceDetails>) => void, failureCallBack?: Function) => void;
