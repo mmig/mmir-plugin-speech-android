@@ -480,7 +480,11 @@ class ASRHandler implements RecognitionListener {
 
     synchronized (this.callbackLock) {
       this._isEnded = true;
-      this.callbackContext.sendPluginResult(recDoneResult);
+      if(this.callbackContext != null) {
+        this.callbackContext.sendPluginResult(recDoneResult);
+      } else {
+        logs("WARNING onEndOfSpeech: tried to use NULL instance of callback context!");
+      }
     }
   }
 
@@ -659,6 +663,11 @@ class ASRHandler implements RecognitionListener {
       CallbackContext callbackContext,
       boolean isInterimResult
       ) {
+
+    if(callbackContext == null){
+      logs("WARNING tried to use NULL instance of callback context!");
+      return; ///////////// EARLY EXIT ///////////
+    }
 
     JSONObject result = new JSONObject();
     try {
