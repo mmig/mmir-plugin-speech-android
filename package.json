@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "mmir-lib": "^6.1.0",
-    "mmir-plugin-exports": "^1.5.0"
+    "mmir-plugin-exports": "^2.0.0"
   },
   "main": "./www/asrAndroid.js",
   "directories": {
@@ -41,7 +41,7 @@
   },
   "types": "index.d.ts",
   "scripts": {
-    "build": "createplugincompat ./ && pluginexport ./",
+    "build": "updateversion ./ && createplugincompat ./ && pluginexport ./",
     "install-scripts": "copycordovascripts res/js"
   },
   "mmir": {
