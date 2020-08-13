@@ -2,7 +2,7 @@
 
 /**
  * part of Cordova plugin: mmir-plugin-speech-android
- * @version 1.2.1
+ * @version 1.2.2
  * @ignore
  */
 

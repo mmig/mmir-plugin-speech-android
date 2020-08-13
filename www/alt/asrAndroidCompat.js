@@ -73,7 +73,7 @@
 
 /**
  * part of Cordova plugin: mmir-plugin-speech-android
- * @version 1.2.1
+ * @version 1.2.2
  * @ignore
  */
 
@@ -103,7 +103,7 @@ return {
 		 * @type AndroidASRPlugin
 		 * @memberOf AndroidAudioInput#
 		 */
-		var asrPlugin = window.cordova.plugins.androidAsrPlugin;
+		var asrPlugin;
 
 		/** @memberOf AndroidAudioInput# */
 		var DEFAULT_LANGUAGE = 'en-US';
@@ -114,8 +114,9 @@ return {
 		/** @memberOf AndroidAudioInput# */
 		var DEFAULT_LANGUAGE_MODEL = 'dictation';// 'dictation' | 'search'
 
-		/**  @memberOf AndroidAudioInput# */
-		var id = 0;
+		// /**  @memberOf AndroidAudioInput# */
+		// var id = 0;
+
 		/**
 		 * @type Function
 		 * @memberOf AndroidAudioInput#
@@ -297,7 +298,8 @@ return {
 		var MIC_CHANGED_EVT_NAME = 'miclevelchanged';
 
 		/**
-		 * MIC-LEVELS: start/stop audio-analysis if listeners get added/removed.
+		 * MIC-LEVELS: start/stop audio-analysis if listeners get added/removed
+		 *             in mediaManager, i.e. register via mediaManager._addListenerObserver()
 		 *
 		 * @private
 		 * @memberOf AndroidAudioInput#
@@ -312,11 +314,38 @@ return {
 				asrPlugin.offMicLevelChanged(handler);
 			}
 		}
-		//observe changes on listener-list for mic-levels-changed-event
-		mediaManager._addListenerObserver(MIC_CHANGED_EVT_NAME, _updateMicLevelListeners);
-		var list = mediaManager.getListeners(MIC_CHANGED_EVT_NAME);
-		for(var i=0, size= list.length; i < size; ++i){
-			asrPlugin.onMicLevelChanged(list[i]);
+
+		/**
+		 * HELPER: finialize the initialization by
+		 *  * retrieving the cordova plugin instance
+		 *  * initialize listeners for mic-level-changes
+		 *  * invoke the initCallBack() callback for the plugin
+		 *
+		 * @private
+		 * @memberOf AndroidAudioInput#
+		 *
+		 * @param  {Function} initializerCallBack the initCallBack() of the mediaManager
+		 * @param  {AndroidAudioInput} initModule the mmir android asr plugin instance
+		 */
+		function initAsrPlugin(initializerCallBack, initModule){
+
+			if(!window.cordova || !window.cordova.plugins || !window.cordova.plugins.androidAsrPlugin){
+				window.document.addEventListener('deviceready', function(){ initAsrPlugin(initializerCallBack, initModule); }, false);
+				return;
+			}
+
+			asrPlugin = window.cordova.plugins.androidAsrPlugin;
+
+			//add current listeners for mic-levels-changes:
+			var list = mediaManager.getListeners(MIC_CHANGED_EVT_NAME);
+			for(var i=0, size= list.length; i < size; ++i){
+				asrPlugin.onMicLevelChanged(list[i]);
+			}
+
+			//observe changes on listener-list for mic-levels-changed-event
+			mediaManager._addListenerObserver(MIC_CHANGED_EVT_NAME, _updateMicLevelListeners);
+
+			initializerCallBack(initModule);
 		}
 
 		/**
@@ -643,8 +672,12 @@ return {
 			});
 		};
 
-		//invoke the passed-in initializer-callback and export the public functions:
-		initCallBack ({
+		/**
+		 * the mmir android ASR plugin instance
+		 * @private
+		 * @type AndroidAudioInput
+		 */
+		var mmirAsrPlugin = {
 			/**
 			 * Start speech recognition (without <em>end-of-speech</em> detection):
 			 * after starting, the recognition continues until {@link #stopRecord} is called.
@@ -839,8 +872,10 @@ return {
 			getRecognitionLanguages: function(successCallBack,failureCallBack){
 				asrPlugin.getLanguages(successCallBack, failureCallBack);
 			}
-		});
+		};//END mmirAsrPlugin = {...
 
+		//invoke the passed-in initializer-callback and export the public functions:
+		initAsrPlugin(initCallBack, mmirAsrPlugin);
 
 	}//END: initialize()
 
