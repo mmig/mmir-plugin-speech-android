@@ -8,7 +8,7 @@
 define(
 	['mmirf/mediaManager', 'mmirf/configurationManager', 'mmirf/languageManager', 'mmirf/util/isArray', 'mmirf/logger'],
 	function(
-		mediaManager, config, lang, isArray, Logger
+		_mediaManager, config, lang, isArray, Logger
 ){
 
 return {
@@ -28,7 +28,7 @@ return {
 		 * @type AndroidTTSPlugin
 		 * @memberOf AndroidTextToSpeech#
 		 */
-		var ttsPlugin = window.cordova.plugins.androidTtsPlugin;
+		var ttsPlugin;
 		/**
 		 * @type String
 		 * @memberOf AndroidTextToSpeech#
@@ -50,32 +50,60 @@ return {
 			logger.setLevel(loglevel);
 		}
 
-		//initialize the TTS plugin (with the current language setting)
-		ttsPlugin.startup(
+		/**
+		 * HELPER: finialize the initialization by
+		 *  * retrieving the cordova plugin instance
+		 *  * startup TTS engine & initialize language
+		 *  * invoke the initCallBack() callback for the plugin
+		 *
+		 * @private
+		 * @memberOf AndroidTextToSpeech#
+		 *
+		 * @param  {Function} initializerCallBack the callBack() of the mediaManager
+		 * @param  {AndroidTextToSpeech} initModule the mmir android tts plugin instance
+		 */
+		function initTtsPlugin(initializerCallBack, initModule){
 
-				function(data){
+			if(!window.cordova || !window.cordova.plugins || !window.cordova.plugins.androidTtsPlugin){
+				window.document.addEventListener('deviceready', function(){ initTtsPlugin(initializerCallBack, initModule); }, false);
+				return;
+			}
 
-					logger.info('AndroidTTS.js.startup: success -> '+JSON.stringify(data));
+			ttsPlugin = window.cordova.plugins.androidTtsPlugin;
 
-					language = lang.getLanguageConfig(_pluginName);
-					//TODO get & set voice (API in plugin is missing for that ... currently...)
-					//var voice = lang.getLanguageConfig(_pluginName, 'voice');
+			//initialize the TTS plugin (with the current language setting)
+			ttsPlugin.startup(
 
-					ttsPlugin.setLanguage(
-							language,
-							function(data){
-								logger.info('AndroidTTS.js.setLanguage('+language+'): success -> '+JSON.stringify(data));
-							}, function(e){
-								logger.warn('AndroidTTS.js.setLanguage('+language+'): error -> '+JSON.stringify(e));
-								language = void(0);
-							}
-					);
+					function(data){
 
-				}, function(e){
-					logger.info('AndroidTTS.js.startup: error -> '+JSON.stringify(e));
-				}
-		);
-		//TODO destructor: register onpause/exit handler that shuts down the TTS engine
+						logger.info('AndroidTTS.js.startup: success -> '+JSON.stringify(data));
+
+						language = lang.getLanguageConfig(_pluginName);
+						//TODO get & set voice (API in plugin is missing for that ... currently...)
+						//var voice = lang.getLanguageConfig(_pluginName, 'voice');
+
+						ttsPlugin.setLanguage(
+								language,
+								function(data){
+									logger.info('AndroidTTS.js.setLanguage('+language+'): success -> '+JSON.stringify(data));
+									initializerCallBack(initModule);
+								}, function(e){
+									logger.warn('AndroidTTS.js.setLanguage('+language+'): error -> '+JSON.stringify(e));
+									language = void(0);
+									initializerCallBack(initModule);
+								}
+						);
+
+					}, function(e){
+						logger.error('AndroidTTS.js.startup: error -> '+JSON.stringify(e));
+
+						//TODO should this fail instead, e.g. throw error?
+						initializerCallBack(initModule);
+					}
+			);
+
+		}
+		//TODO destructor: register onpause/exit handler that shuts down the TTS engine?
 
 		/**
 		 * @type Function
@@ -119,8 +147,12 @@ return {
 			};
 		}
 
-		//invoke the passed-in initializer-callback and export the public functions:
-		callBack({
+		/**
+		 * the mmir android TTS plugin instance
+		 * @private
+		 * @type AndroidTextToSpeech
+		 */
+		var mmirTtsPlugin = {
 			/**
 			 * @deprecated use {@link #tts} instead
 			 * @memberOf AndroidTextToSpeech.prototype
@@ -285,7 +317,10 @@ return {
 				ttsPlugin.getVoices.apply(ttsPlugin, args);
 
 			}
-		});
+		};//END: mmirTtsPlugin = {...
+
+		//invoke the passed-in initializer-callback and export the public functions:
+		initTtsPlugin(callBack, mmirTtsPlugin);
 
 	}//END: initialize()
 
