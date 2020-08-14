@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "mmir-lib": "^6.1.0",
-    "mmir-plugin-exports": "^2.0.0"
+    "mmir-plugin-exports": "^2.1.1"
   },
   "main": "./www/asrAndroid.js",
   "directories": {
@@ -41,7 +41,8 @@
   },
   "types": "index.d.ts",
   "scripts": {
-    "build": "updateversion ./ && createplugincompat ./ && pluginexport ./",
+    "build": "npm run update-version && createplugincompat ./ && pluginexport ./",
+    "update-version": "updateversion ./ www/asrAndroid.js www/ttsAndroid.js --version-regexp \"/^(\\s*\\*\\s*@version\\s+)\\d[.\\d]*\\s*$/m\" --replace-pattern $1$0",
     "install-scripts": "copycordovascripts res/js"
   },
   "mmir": {
