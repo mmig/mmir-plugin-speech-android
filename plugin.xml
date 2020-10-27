@@ -99,6 +99,14 @@ If you are using the webpack integration `mmir-webpack` you should install with 
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
       <uses-permission android:name="android.permission.VIBRATE"></uses-permission>
+      <queries>
+        <intent>
+          <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+      </queries>
     </config-file>
 
     <framework src="com.android.support:support-compat:25.0.1" />
