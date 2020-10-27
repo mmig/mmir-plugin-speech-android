@@ -1,6 +1,6 @@
 {
   "name": "mmir-plugin-speech-android",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Cordova plugin for the Android speech recognizer and synthesizer",
   "cordova": {
     "id": "mmir-plugin-speech-android",
