@@ -31,22 +31,26 @@ import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 /**
  * Style and such borrowed from the TTS and PhoneListener plugins
  */
-public class AndroidSpeechRecognizer extends CordovaPlugin {
+public class AndroidSpeechRecognizer extends CordovaPlugin implements AudioManager.OnAudioFocusChangeListener {
 
   public static final String ACTION_GET_LANGUAGES = "getSupportedLanguages";
   public static final String ACTION_RECOGNIZE = "recognize";
@@ -100,7 +104,10 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
 
     this.mAudioManager = (AudioManager) this._cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
 
-    Utils.verifySpeechRecognitionPermissions(cordova.getActivity());
+    if(SDK_VERSION < Build.VERSION_CODES.M) {
+      //for Android 5.1 or earlier (sdk 22): build-time permissions
+      Utils.verifySpeechRecognitionPermissions(cordova.getActivity());
+    }
 
     super.initialize(cordova, webView);
   }
@@ -198,6 +205,21 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
   }
 
   private void _startSpeechRecognitionActivity(JSONArray args, CallbackContext callbackContext, boolean isWithEndOfSpeechDetection) {
+
+    if(SDK_VERSION >= Build.VERSION_CODES.M){
+      //since Android 6 (sdk 23): runtime permissions!
+
+      if(!Utils.verifySpeechRecognitionPermissions(cordova.getActivity())){
+        int errorCode = SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS;
+        JSONObject result = Utils.createMessage(
+          Utils.FIELD_ERROR_CODE, errorCode,
+          Utils.FIELD_MESSAGE, "onStart: "+Utils.getErrorMessage(errorCode)
+        );
+        callbackContext.error(result);
+        return;
+      }
+    }
+
     int maxMatches = 0;
     String language = Locale.getDefault().toString();
     boolean isIntermediate = false;
@@ -224,6 +246,8 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
       if (args.length() > 4) {
         // Optional text prompt
         prompt = args.getString(4);
+      } else {
+        prompt = "Ein Test für einen Prompt";
       }
 
       //TODO if ... withoutEndOfSpeechDetection = ...
@@ -491,10 +515,12 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
   protected AudioManager mAudioManager;
   protected volatile boolean mIsCountDownOn;
   private boolean mIsStreamSolo;
+  private AudioFocusRequest mAudioFocusReq;
 
   private boolean isDisableSoundPrompt(){
     //TODO impl. "smarter" detection? (russa: which version added the sounds?)
-    return SDK_VERSION >= Build.VERSION_CODES.JELLY_BEAN;
+    // return SDK_VERSION >= Build.VERSION_CODES.JELLY_BEAN;
+    return false;//FIXME does not work as intended (at least not for sdk >= 27), disable for now
   }
 
   int soloCounter = 0;
@@ -507,20 +533,79 @@ public class AndroidSpeechRecognizer extends CordovaPlugin {
         delayedEnableSoundHandler = null;
       }
 
-      mAudioManager.setStreamSolo(AudioManager.STREAM_VOICE_CALL, true);
-      mIsStreamSolo = true;
+      if(SDK_VERSION >= Build.VERSION_CODES.O) {
+        disableSoundSdk26();;
+      } else if(SDK_VERSION >= Build.VERSION_CODES.M) {
+        disableSoundSdk23();
+      } else {
+        disableSoundSdk22();
+      }
 
-      Log.e(PLUGIN_NAME + "_debug-solostream", "DISABLE SOUND -> solo-counter: "+(++soloCounter));
+      if(Log.isLoggable(PLUGIN_NAME, Log.VERBOSE)) Log.v(PLUGIN_NAME, "DISABLE SOUND -> solo-counter: "+(++soloCounter));
     }
   }
 
   void enableSoundFeedback() {
 
     if (mIsStreamSolo){
-      mAudioManager.setStreamSolo(AudioManager.STREAM_VOICE_CALL, false);
-      mIsStreamSolo = false;
 
-      Log.e(PLUGIN_NAME + "_debug-solostream", "ENABLE SOUND -> solo-counter: "+(--soloCounter));
+      if(SDK_VERSION >= Build.VERSION_CODES.O) {
+        enableSoundSdk26();
+      } else if(SDK_VERSION >= Build.VERSION_CODES.M) {
+        enableSoundSdk23();
+      } else {
+        enableSoundSdk22();
+      }
+
+      if(Log.isLoggable(PLUGIN_NAME, Log.VERBOSE)) Log.v(PLUGIN_NAME, "ENABLE SOUND -> solo-counter: "+(--soloCounter));
+    }
+  }
+
+  protected void disableSoundSdk22() {
+    mAudioManager.setStreamSolo(AudioManager.STREAM_VOICE_CALL, true);
+    mIsStreamSolo = true;
+  }
+
+  @RequiresApi(23)
+  protected void disableSoundSdk23() {
+    mAudioManager.requestAudioFocus(this, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE);
+  }
+
+  @RequiresApi(26)
+  protected void disableSoundSdk26() {
+    if(mAudioFocusReq == null) {
+      mAudioFocusReq = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
+              .setAudioAttributes(new AudioAttributes.Builder()
+                      .setLegacyStreamType(AudioManager.STREAM_VOICE_CALL)
+                      .build())
+              .setOnAudioFocusChangeListener(this)
+              .build();
+    }
+    mAudioManager.abandonAudioFocusRequest(mAudioFocusReq);
+  }
+
+  protected void enableSoundSdk22() {
+    mAudioManager.setStreamSolo(AudioManager.STREAM_VOICE_CALL, false);
+    mIsStreamSolo = false;
+  }
+
+  @RequiresApi(23)
+  protected void enableSoundSdk23() {
+    mAudioManager.abandonAudioFocus(this);
+  }
+
+  @RequiresApi(26)
+  protected void enableSoundSdk26() {
+    if(mAudioFocusReq != null) {
+      mAudioManager.abandonAudioFocusRequest(mAudioFocusReq);
+    }
+  }
+
+  public void onAudioFocusChange(int focusChange) {
+    if(focusChange ==  AudioManager.AUDIOFOCUS_GAIN){
+      mIsStreamSolo = true;
+    } else { //if(focusChange ==  AudioManager.AUDIOFOCUS_LOSS || focusChange ==  AudioManager.AUDIOFOCUS_LOSS_TRANSIENT || focusChange ==  AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+      mIsStreamSolo = false;
     }
   }
 
