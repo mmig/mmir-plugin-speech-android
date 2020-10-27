@@ -1,9 +1,12 @@
 package de.dfki.iui.mmir.plugins.speech.android;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
+import android.annotation.SuppressLint;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Vibrator;
+import android.speech.RecognitionListener;
+import android.speech.SpeechRecognizer;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.LOG;
@@ -13,15 +16,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Vibrator;
-import android.speech.RecognitionListener;
-import android.speech.SpeechRecognizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 
 class ASRHandler implements RecognitionListener {
 
@@ -29,25 +27,9 @@ class ASRHandler implements RecognitionListener {
 
   private static final String ANDROID_SPEECH_EXTRA_UNSTABLE_TEXT = "android.speech.extra.UNSTABLE_TEXT";
 
-  private static final String FIELD_RESULT_TYPE = "type";
-
-  private static final String FIELD_RECOGNITION_RESULT_ALTERNATIVES = "alternatives";
-
-  private static final String FIELD_RECOGNITION_RESULT_UNSTABLE = "unstable";
-
-  private static final String FIELD_RECOGNITION_SCORE = "score";
-
-  private static final String FIELD_RECOGNITION_RESULT = "result";
-
-  private static final String FIELD_ERROR_CODE = "error_code";
-
-  private static final String FIELD_MESSAGE = "msg";
-
   private static final String NAME = "ASRHandler";
 
   private static final int SDK_VERSION = Build.VERSION.SDK_INT;
-
-  public static final int ERROR_SPEECH_NOT_STARTED_TIMEOUT = 101;
 
   //	private final ToneGenerator tonePrompt;
 
@@ -97,7 +79,7 @@ class ASRHandler implements RecognitionListener {
       _owner.cancelSpeechInput();
 
       //send custom error code, indicating the Jelly Bean problem as cause:
-      onError(ERROR_SPEECH_NOT_STARTED_TIMEOUT);
+      onError(Utils.ERROR_SPEECH_NOT_STARTED_TIMEOUT);
     }
 
   };
@@ -162,53 +144,6 @@ class ASRHandler implements RecognitionListener {
     LOG.e(NAME, msg, e);
   }
 
-
-  //	/** Network operation timed out. */
-  //    public static final int ERROR_NETWORK_TIMEOUT = 1;
-  //    /** Other network related errors. */
-  //    public static final int ERROR_NETWORK = 2;
-  //    /** Audio recording error. */
-  //    public static final int ERROR_AUDIO = 3;
-  //    /** Server sends error status. */
-  //    public static final int ERROR_SERVER = 4;
-  //    /** Other client side errors. */
-  //    public static final int ERROR_CLIENT = 5;
-  //    /** No speech input */
-  //    public static final int ERROR_SPEECH_TIMEOUT = 6;
-  //    /** No recognition result matched. */
-  //    public static final int ERROR_NO_MATCH = 7;
-  //    /** RecognitionService busy. */
-  //    public static final int ERROR_RECOGNIZER_BUSY = 8;
-  //    /** Insufficient permissions */
-  //    public static final int ERROR_INSUFFICIENT_PERMISSIONS = 9;
-
-  private String getMessage(int resultCode){
-    String msg;
-    if(resultCode == SpeechRecognizer.ERROR_NETWORK_TIMEOUT){
-      msg = "Network Timeout Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_NETWORK){
-      msg = "Network Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_AUDIO){
-      msg = "Audio Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_SERVER){
-      msg = "Server Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_CLIENT){
-      msg = "Client Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT){
-      msg = "Speech Timeout Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_NO_MATCH){
-      msg = "No Match Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_RECOGNIZER_BUSY){
-      msg = "Recognizer Busy Error";
-    }else if(resultCode == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS){
-      msg = "Insufficient Permissions Error";
-    }else if(resultCode == ERROR_SPEECH_NOT_STARTED_TIMEOUT){
-      msg = "[Custom Error] Speech Not Started Timout Error";
-    }else {
-      msg = "Unknown Error: code "+resultCode;
-    }
-    return msg;
-  }
   private String toString(byte[] buffer){
     if(buffer != null){
       return "byte[] (size " + buffer.length + ")";
@@ -296,7 +231,7 @@ class ASRHandler implements RecognitionListener {
     try {
       //            result.put(FIELD_RECOGNITION_RESULT, "");
       //            result.put(FIELD_RECOGNITION_SCORE, -1);
-      result.put(FIELD_RESULT_TYPE, ResultTypes.RECORDING_BEGIN.toString());
+      result.put(Utils.FIELD_RESULT_TYPE, ResultTypes.RECORDING_BEGIN.toString());
     } catch (JSONException e) {
       e.printStackTrace();
     }
@@ -470,7 +405,7 @@ class ASRHandler implements RecognitionListener {
     try {
       //            result.put(FIELD_RECOGNITION_RESULT, "");
       //            result.put(FIELD_RECOGNITION_SCORE, -1);
-      result.put(FIELD_RESULT_TYPE, ResultTypes.RECORDING_DONE.toString());
+      result.put(Utils.FIELD_RESULT_TYPE, ResultTypes.RECORDING_DONE.toString());
     } catch (JSONException e) {
       e.printStackTrace();
     }
@@ -491,7 +426,7 @@ class ASRHandler implements RecognitionListener {
   @Override
   public void onError(int error) {
 
-    String msg = "onError: "+getMessage(error);
+    String msg = "onError: "+ Utils.getErrorMessage(error);
     printe(msg);
 
     doCancelTimeout();
@@ -702,8 +637,8 @@ class ASRHandler implements RecognitionListener {
     JSONObject result = new JSONObject();
     try {
 
-      result.put(FIELD_ERROR_CODE, errorCode);
-      result.put(FIELD_MESSAGE, message);
+      result.put(Utils.FIELD_ERROR_CODE, errorCode);
+      result.put(Utils.FIELD_MESSAGE, message);
       setResultType(result, isInterimResult);
 
     } catch (JSONException e) {
@@ -746,8 +681,8 @@ class ASRHandler implements RecognitionListener {
         JSONObject doneResult = new JSONObject();
         try {
 
-          doneResult.put(FIELD_ERROR_CODE, errorCode);
-          doneResult.put(FIELD_MESSAGE, message);
+          doneResult.put(Utils.FIELD_ERROR_CODE, errorCode);
+          doneResult.put(Utils.FIELD_MESSAGE, message);
           setResultType(doneResult, isInterimResult);
 
         } catch (JSONException e) {
@@ -791,7 +726,7 @@ class ASRHandler implements RecognitionListener {
     String type = isInterim ? ResultTypes.INTERIM.toString() :
       this.isFinal? ResultTypes.FINAL.toString() : ResultTypes.INTERMEDIATE.toString();
 
-      result.put(FIELD_RESULT_TYPE, type);
+      result.put(Utils.FIELD_RESULT_TYPE, type);
 
   }
 
@@ -804,10 +739,10 @@ class ASRHandler implements RecognitionListener {
     if(len > 0){
 
       //add main / first result at "root" level of the return-object:
-      result.put(FIELD_RECOGNITION_RESULT, matches.get(0));
+      result.put(Utils.FIELD_RECOGNITION_RESULT, matches.get(0));
 
       if(len2 > 0){
-        result.put(FIELD_RECOGNITION_SCORE, scores.get(0));
+        result.put(Utils.FIELD_RECOGNITION_SCORE, scores.get(0));
       }
 
       //add alternative results
@@ -818,23 +753,23 @@ class ASRHandler implements RecognitionListener {
         for(int i = 1; i < len; ++i){
 
           JSONObject altResult = new JSONObject();
-          altResult.put(FIELD_RECOGNITION_RESULT, matches.get(i));
+          altResult.put(Utils.FIELD_RECOGNITION_RESULT, matches.get(i));
 
           if(len2 > i){
-            altResult.put(FIELD_RECOGNITION_SCORE, scores.get(i));
+            altResult.put(Utils.FIELD_RECOGNITION_SCORE, scores.get(i));
           } else {
             printw("no score for result at index "+i);
           }
 
           //add unstable results, if available & not empty (e.g. omit 0-length Strings)
           if(len3 > i && unstableMatches.get(i) != null && unstableMatches.get(i).length() > 0){
-            altResult.put(FIELD_RECOGNITION_RESULT_UNSTABLE, unstableMatches.get(i));
+            altResult.put(Utils.FIELD_RECOGNITION_RESULT_UNSTABLE, unstableMatches.get(i));
           }
 
           alternatives.put(altResult);
         }
 
-        result.put(FIELD_RECOGNITION_RESULT_ALTERNATIVES, alternatives);
+        result.put(Utils.FIELD_RECOGNITION_RESULT_ALTERNATIVES, alternatives);
 
       }//END: add alternatives
     }
@@ -842,7 +777,7 @@ class ASRHandler implements RecognitionListener {
     //add unstable for main/root, if available
     if(len3 > 0 && unstableMatches.get(0) != null && unstableMatches.get(0).length() > 0){
 
-      result.put(FIELD_RECOGNITION_RESULT_UNSTABLE, unstableMatches.get(0));
+      result.put(Utils.FIELD_RECOGNITION_RESULT_UNSTABLE, unstableMatches.get(0));
     }
   }
 

@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.speech.SpeechRecognizer;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 
@@ -24,6 +25,16 @@ public class Utils {
   public static final int REQUEST_SPEECH_SYNTHESIS = 1363699480;
   public static String[] PERMISSIONS_SPEECH_SYNTHESIS = {};//NOTE no special permissions required for built-in speech synthesis
 
+  public static final int ERROR_SPEECH_NOT_STARTED_TIMEOUT = 101;
+
+  public static final String FIELD_RESULT_TYPE = "type";
+  public static final String FIELD_RECOGNITION_RESULT_ALTERNATIVES = "alternatives";
+  public static final String FIELD_RECOGNITION_RESULT_UNSTABLE = "unstable";
+  public static final String FIELD_RECOGNITION_SCORE = "score";
+  public static final String FIELD_RECOGNITION_RESULT = "result";
+  public static final String FIELD_ERROR_CODE = "error_code";
+  public static final String FIELD_MESSAGE = "msg";
+
   /**
    * Checks if the activity has permission(s) for speech recognition
    *
@@ -32,7 +43,7 @@ public class Utils {
   static boolean isPermissionMissing(@NonNull Activity activity, @NonNull String[] permissions) {
 
     boolean missingPermission = false;
-    // Check if we have permissions 
+    // Check if we have permissions
     for(String p : permissions){
       int permission = ActivityCompat.checkSelfPermission(activity, p);
       if(permission != PackageManager.PERMISSION_GRANTED){
@@ -76,7 +87,7 @@ public class Utils {
       REQUEST_SPEECH_RECOGNITION
     );
   }
-  
+
   /**
    * Checks if the activity has permission(s) for speech synthesis
    *
@@ -108,7 +119,7 @@ public class Utils {
    *
    * @param activity
    */
-  public static void verifySpeechRecognitionPermissions(Activity activity) {
+  public static boolean verifySpeechRecognitionPermissions(Activity activity) {
 
     boolean missingPermission = isSpeechRecognitionPermissionMissing(activity);
 
@@ -116,6 +127,54 @@ public class Utils {
       // We don't have permission so prompt the user
       requestSpeechRecognitionPermissions(activity);
     }
+    return !missingPermission;
+  }
+
+  //	/** Network operation timed out. */
+  //    public static final int ERROR_NETWORK_TIMEOUT = 1;
+  //    /** Other network related errors. */
+  //    public static final int ERROR_NETWORK = 2;
+  //    /** Audio recording error. */
+  //    public static final int ERROR_AUDIO = 3;
+  //    /** Server sends error status. */
+  //    public static final int ERROR_SERVER = 4;
+  //    /** Other client side errors. */
+  //    public static final int ERROR_CLIENT = 5;
+  //    /** No speech input */
+  //    public static final int ERROR_SPEECH_TIMEOUT = 6;
+  //    /** No recognition result matched. */
+  //    public static final int ERROR_NO_MATCH = 7;
+  //    /** RecognitionService busy. */
+  //    public static final int ERROR_RECOGNIZER_BUSY = 8;
+  //    /** Insufficient permissions */
+  //    public static final int ERROR_INSUFFICIENT_PERMISSIONS = 9;
+
+  public static String getErrorMessage(int errorCode){
+    String msg;
+    if(errorCode == SpeechRecognizer.ERROR_NETWORK_TIMEOUT){
+      msg = "Network Timeout Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_NETWORK){
+      msg = "Network Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_AUDIO){
+      msg = "Audio Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_SERVER){
+      msg = "Server Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_CLIENT){
+      msg = "Client Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT){
+      msg = "Speech Timeout Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_NO_MATCH){
+      msg = "No Match Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_RECOGNIZER_BUSY){
+      msg = "Recognizer Busy Error";
+    }else if(errorCode == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS){
+      msg = "Insufficient Permissions Error";
+    }else if(errorCode == ERROR_SPEECH_NOT_STARTED_TIMEOUT){
+      msg = "[Custom Error] Speech Not Started Timout Error";
+    }else {
+      msg = "Unknown Error: code "+errorCode;
+    }
+    return msg;
   }
 
   public static JSONObject createMessage(Object ...args){
