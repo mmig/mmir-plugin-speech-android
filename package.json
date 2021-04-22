@@ -42,7 +42,7 @@
   "types": "index.d.ts",
   "scripts": {
     "build": "npm run update-version && createplugincompat ./ && pluginexport ./",
-    "update-version": "updateversion ./ www/asrAndroid.js www/ttsAndroid.js --version-regexp \"/^(\\s*\\*\\s*@version\\s+)\\d[.\\d]*\\s*$/m\" --replace-pattern $1$0",
+    "update-version": "updateversion ./ www/asrAndroid.js www/ttsAndroid.js --version-regexp \"/^(\\s*\\*\\s*@version\\s+)§VERSION§$/m\" --replace-pattern $1$0",
     "install-scripts": "copycordovascripts res/js"
   },
   "mmir": {
