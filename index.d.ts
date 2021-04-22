@@ -73,5 +73,5 @@ export interface PluginMediaManager extends MediaManager {
 
   tts: (options: string | string[] | PluginTTSOptions, successCallback?: TTSOnComplete, failureCallback?: TTSOnError, onInit?: TTSOnReady, ...args: any[]) => void;
   getSpeechLanguages: (successCallBack?: Function, failureCallBack?: Function) => void;
-  getVoices: (options?: VoiceListOptions, successCallBack?: (voices: Array<string | VoiceDetails>) => void, failureCallBack?: Function) => void;
+  getVoices: (options?: VoiceListOptions, successCallBack?: (voices: string | VoiceDetails[]) => void, failureCallBack?: Function,) => void;
 }
