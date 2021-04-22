@@ -236,6 +236,11 @@ return {
 					//only set language in native plugin, if necessary
 					var locale = options.language !== language? options.language : void(0);
 
+					//update var language if neccessary:
+					if(locale){
+						language = locale;
+					}
+
 					ttsPlugin.tts(
 							text, locale,
 							createSuccessWrapper(options.success, options.ready),
