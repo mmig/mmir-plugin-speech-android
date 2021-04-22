@@ -515,6 +515,8 @@ public class AndroidSpeechRecognizer extends CordovaPlugin implements AudioManag
   protected AudioManager mAudioManager;
   protected volatile boolean mIsCountDownOn;
   private boolean mIsStreamSolo;
+
+  @RequiresApi(26)
   private AudioFocusRequest mAudioFocusReq;
 
   private boolean isDisableSoundPrompt(){
