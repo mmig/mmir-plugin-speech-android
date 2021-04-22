@@ -134,7 +134,7 @@
 	
 /**
  * part of Cordova plugin: mmir-plugin-speech-android
- * @version 1.2.3
+ * @version 1.2.4
  * @ignore
  */
 
