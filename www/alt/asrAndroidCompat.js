@@ -1,20 +1,22 @@
 ;(function (root, factory) {
 
 	//mmir legacy mode: use pre-v4 API of mmir-lib
-	var _isLegacyMode3 = true;
-	var _isLegacyMode4 = true;
+	var _isLegacyMode3 = true;// v3 or below
+	var _isLegacyMode4 = true;// v4 or below
+	var _isLegacyMode6 = true;// v6 or below
 	var mmirName = typeof MMIR_CORE_NAME === 'string'? MMIR_CORE_NAME : 'mmir';
 	var _mmir = root[mmirName];
 	if(_mmir){
-		//set legacy-mode if version is < v4 (isVersion() is available since v4)
+		//set legacy-mode if version is < v4, or < v5, or < v7 (isVersion() is available since v4)
 		_isLegacyMode3 = _mmir.isVersion? _mmir.isVersion(4, '<') : true;
 		_isLegacyMode4 = _mmir.isVersion? _mmir.isVersion(5, '<') : true;
+		_isLegacyMode6 = _mmir.isVersion? _mmir.isVersion(7, '<') : true;
 	}
 	var _req = _mmir? _mmir.require : require;
 
-	var getId, isArray;
-	if(_isLegacyMode3 || _isLegacyMode4){
-		isArray = _req((_isLegacyMode3? '': 'mmirf/') + 'util/isArray');
+	var isArray = _req((_isLegacyMode3? '': 'mmirf/') + 'util/isArray');
+	var getId;
+	if(_isLegacyMode4){
 		// HELPER: backwards compatibility v4 for module IDs
 		getId = function(ids){
 			if(isArray(ids)){
@@ -23,10 +25,12 @@
 			return ids? ids.replace(/\bresources$/, 'constants') : ids;
 		};
 		var __req = _req;
-		_req = function(deps, id, success, error){
-			var args = [getId(deps), getId(id), success, error];
+		_req = function(deps, success, error, completed){
+			var args = [getId(deps), success, error, completed];
 			return __req.apply(null, args);
 		};
+	} else if(!_isLegacyMode3) {
+		getId = function(ids){ return ids; };
 	}
 
 	if(_isLegacyMode3){
@@ -36,9 +40,39 @@
 			if(isArray(ids)) return __getId(ids);
 			return ids? __getId(ids).replace(/^mmirf\//, '') : ids;
 		};
+	}
+
+	var extend, replacedMod;
+	if(_isLegacyMode6) {
+		extend = _req('mmirf/util/extend');
+		//upgrage mmir < v7:
+		// proxy require calls from within the wrapped module to replaced
+		// implementations if necessary (i.e. isolated changed modules)
+		replacedMod = {};
+		var ___req = _req;
+		_req = function(deps, success, error, completed){
+			if(typeof deps === 'string' && replacedMod[getId(deps)]) return replacedMod[getId(deps)];
+			if(success){
+				var _success = success;
+				success = function(){
+					deps = getId(deps);
+					for(var i=deps.length-1; i >= 0; --i){
+						if(deps[i]==='require') arguments[i] = _req;
+						else if(replacedMod[deps[i]]) arguments[i] = replacedMod[deps[i]];
+					}
+					_success.apply(null, arguments);
+				};
+			}
+			return ___req.apply(null, [deps, success, error, completed]);
+		}
+	}
+
+	if(_isLegacyMode3){
 		//HELPER: backwards compatibility v3 for configurationManager.get():
-		var config = _req('configurationManager');
+		var config = _req('mmirf/configurationManager');
 		if(!config.__get){
+			config = extend({}, config);
+			replacedMod[getId('mmirf/configurationManager')] = config;
 			config.__get = config.get;
 			config.get = function(propertyName, useSafeAccess, defaultValue){
 				return this.__get(propertyName, defaultValue, useSafeAccess);
@@ -46,24 +80,52 @@
 		}
 	}
 
-	if(_isLegacyMode3 || _isLegacyMode4){
+	if(_isLegacyMode6) {
+		//upgrage mmir < v7: add impl. for mediaManager.loadPlugin()
+		var mediaManager = _req('mmirf/mediaManager');
+		if(!mediaManager.loadPlugin && mediaManager.loadFile){
+			mediaManager.loadPlugin = mediaManager.loadFile;
+		}
+		//patch changed interpretation of 3rd parameter in mmir.config.get(paht, defaultValue, boolean):
+		var config = _req('mmirf/configurationManager');
+		if(!config.___get){
+			config = extend({}, config);
+			replacedMod[getId('mmirf/configurationManager')] = config;
+			config.___get = config.get;
+			config.get = function(name, defaultValue, setDefaultIfUnset){
+				var res = this.___get(isArray(name) ? name.slice() : name);
+				if(typeof res === 'undefined' && defaultValue !== 'undefined'){
+					res = defaultValue;
+					if(setDefaultIfUnset){
+						this.set(isArray(name) ? name.slice() : name, defaultValue);
+					}
+				}
+				return res;
+			};
+		}
+	}
+
+	if(_isLegacyMode4){
 
 		//backwards compatibility v3 and v4:
-		//  plugin instance is "exported" to global var newMediaPlugin
+		// plugin instance is "exported" to global var newMediaPlugin
 		root['newMediaPlugin'] = factory(_req);
 
 	} else {
 
 		if (typeof define === 'function' && define.amd) {
-				// AMD. Register as an anonymous module.
-				define(['require'], function (require) {
-						return factory(require);
-				});
+			// AMD. Register as an anonymous module.
+			define(['require'], function (require) {
+				//replace with modified require if necessary;
+				if(__req) __req = require;
+				else if(___req) ___req = require;
+				return factory(_req);
+			});
 		} else if (typeof module === 'object' && module.exports) {
-				// Node. Does not work with strict CommonJS, but
-				// only CommonJS-like environments that support module.exports,
-				// like Node.
-				module.exports = factory(_req);
+			// Node. Does not work with strict CommonJS, but
+			// only CommonJS-like environments that support module.exports,
+			// like Node.
+			module.exports = factory(_req);
 		}
 	}
 
@@ -883,6 +945,23 @@ return {
 
 }
     })();
+    
+    //backwards compatibility for media plugins that target mmir-lib < 7.x:
+    //remove mediaManager instance from arguments
+    var __mmir__ = require('mmirf/core');
+    if(!__mmir__.isVersion || __mmir__.isVersion(7, '<')){
+      var __mediaManager__ = require('mmirf/mediaManager');
+      var modifiedArgs = [];
+      for(var i=0, offset=0, size=origArgs.length; i < size; ++i){
+        if(origArgs[i] === __mediaManager__){
+          ++offset;
+        } else {
+          modifiedArgs[i - offset] = origArgs[i];
+        }
+      }
+      origArgs = modifiedArgs;
+    }
+
     origInit.initialize.apply(null, origArgs);
 });;
   }};

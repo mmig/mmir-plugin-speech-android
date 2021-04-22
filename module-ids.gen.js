@@ -28,14 +28,23 @@ var _exportedModules = [
 var _dependencies = [];
 var _exportedFiles = [];
 var _modes = {};
-var _buildConfig;
-function _join(source, target, dict){
+var _buildConfig = "module-config.gen.js";
+function _join(target, source, dupl){
   source.forEach(function(item){
-    if(!dict[item]){
-      dict[item] = true;
+    if(!dupl || !dupl.has(item)){
+      dupl && dupl.add(item);
       target.push(item);
     }
   });
+};
+function _toDict(list){
+  if(typeof list.has === 'function' && typeof list.add === 'function'){
+    return list;
+  }
+  if(typeof list[Symbol.iterator] !== 'function'){
+    list = Object.keys(list);
+  }
+  return new Set(list);
 };
 function _getAll(type, mode, isResolve){
 
@@ -47,14 +56,14 @@ function _getAll(type, mode, isResolve){
   var data = this[type];
   var isArray = Array.isArray(data);
   var result = isArray? [] : Object.assign({}, data);
-  var dupl = result;
+  var dupl;
   var mod = mode && this.modes[mode];
   if(isArray){
-    dupl = {};
+    dupl = new Set();
     if(mod && mod[type]){
-      _join(this.modes[mode][type], result, dupl);
+      _join(result, this.modes[mode][type], dupl);
     }
-    _join(data, result, dupl);
+    _join(result, data, dupl);
   } else if(isResolve){
     var root = __dirname;
     Object.keys(result).forEach(function(field){
@@ -69,7 +78,7 @@ function _getAll(type, mode, isResolve){
     var depExports = require(dep + '/module-ids.gen.js');
     var depData = depExports.getAll(type, mode, isResolve);
     if(isArray){
-      _join(depData, result, dupl);
+      _join(result, depData, dupl);
     } else {
       Object.assign(result, depData)
     }
@@ -77,25 +86,42 @@ function _getAll(type, mode, isResolve){
 
   return result;
 };
-function _getBuildConfig(buildConfigsMap){
-
+function _getBuildConfig(pluginName, buildConfigsMap){
+  if(pluginName && typeof pluginName !== 'string'){
+    buildConfigsMap = pluginName;
+    pluginName = void(0);
+  }
   var buildConfigs = [];
-  var dupl = buildConfigsMap | {};
+  var dupl = buildConfigsMap? _toDict(buildConfigsMap) : new Set();
   if(_buildConfig){
-    var buildConfig = require(__dirname+'/'+_buildConfig);
+    var buildConfigMod = require(__dirname+'/'+_buildConfig);
+    var buildConfig = buildConfigMod.buildConfigs;
     if(Array.isArray(buildConfig)){
-      _join(buildConfig, buildConfigs, dupl);
-    } else if(!dupl){
-      dupl[buildConfig] = true;
+      _join(buildConfigs, buildConfig, dupl);
+    } else if(buildConfig && !dupl.has(buildConfig)){
+      dupl.add(buildConfig);
       buildConfigs.push(buildConfig);
+    }
+    if(Array.isArray(buildConfigMod.pluginName) && buildConfigMod.plugins){
+      buildConfigMod.pluginName.forEach(function(name){
+        if(!pluginName || pluginName === name){
+          var pluginBuildConfig = buildConfigMod.plugins[name].buildConfigs;
+          if(Array.isArray(pluginBuildConfig)){
+            _join(buildConfigs, pluginBuildConfig, dupl);
+          } else if(pluginBuildConfig && !dupl.has(pluginBuildConfig)){
+            dupl.add(pluginBuildConfig);
+            buildConfigs.push(pluginBuildConfig);
+          }
+        }
+      });
     }
   }
 
   this.dependencies.forEach(function(dep){
     var depExports = require(dep + '/module-ids.gen.js');
     if(depExports.buildConfig){
-      var depBuildConfigs = depExports.getBuildConfig(dupl);
-      _join(depBuildConfigs, buildConfigs, dupl);
+      var depBuildConfigs = depExports.getBuildConfig(null, dupl);
+      _join(buildConfigs, depBuildConfigs);
     }
   });
 
