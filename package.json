@@ -32,8 +32,8 @@
     "mmir-lib": ">=5"
   },
   "devDependencies": {
-    "mmir-lib": "^7.0.0-beta3",
-    "mmir-plugin-exports": "^2.5.3"
+    "mmir-lib": "^7.0.1",
+    "mmir-plugin-exports": "^2.7.1"
   },
   "main": "./www/asrAndroid.js",
   "directories": {
