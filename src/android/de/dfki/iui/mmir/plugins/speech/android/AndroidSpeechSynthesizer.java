@@ -263,9 +263,11 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
         if (mTts != null) {
           String lang;
           if(SDK_VERSION >= 21){
-            lang = mTts.getVoice().getLocale().toString();
+            Voice v = mTts.getVoice();
+            lang = v != null? v.getLocale().toString() : null;
           } else {
-            lang = mTts.getLanguage().toString();
+            Locale l = mTts.getLanguage();
+            lang = l != null? l.toString() : null;
           }
           result = new PluginResult(PluginResult.Status.OK, lang);
         }
@@ -278,9 +280,11 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
           } else {
             String lang;
             if(SDK_VERSION >= 21){
-              lang = mTts.getDefaultVoice().getLocale().toString();
+              Voice v = mTts.getDefaultVoice();
+              lang = v != null? v.getLocale().toString() : null;
             } else {
-              lang = mTts.getDefaultLanguage().toString();
+              Locale l = mTts.getDefaultLanguage();
+              lang = l != null? l.toString() : null;
             }
             result = new PluginResult(PluginResult.Status.OK, lang);
           }
@@ -290,7 +294,8 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
         if (mTts != null) {
           if(SDK_VERSION >= 21){
-            result = new PluginResult(PluginResult.Status.OK, mTts.getDefaultVoice().getName());
+            Voice v =  mTts.getDefaultVoice();
+            result = new PluginResult(PluginResult.Status.OK, v != null? v.getName() : null);
           } else {
             result = new PluginResult(PluginResult.Status.ERROR, String.format("Cannot query default voice: API is %d, but requires >= API 21.", SDK_VERSION));
           }
@@ -301,8 +306,11 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
         if (mTts != null) {
           if(SDK_VERSION >= 21){
             JSONArray list = new JSONArray();
-            for(Locale l : mTts.getAvailableLanguages()){
-              list.put(l.toString());
+            Set<Locale> languages = mTts.getAvailableLanguages();
+            if(languages != null) {
+              for (Locale l : languages) {
+                list.put(l.toString());
+              }
             }
 
             if (mTts != null) {
@@ -337,38 +345,41 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
 
             JSONArray list = new JSONArray();
-            for(Voice v : mTts.getVoices()){
+            Set<Voice> voices = mTts.getVoices();
+            if(voices != null){
+              for(Voice v : voices){
 
-              if(lang != null){
-                if(!lang.getISO3Language().equals(v.getLocale().getISO3Language()))
-                  continue;
-                if(lang.getISO3Country().length() > 0 && !lang.getISO3Country().equals(v.getLocale().getISO3Country()))
-                  continue;
-              }
-
-              if(isDetails){
-
-                JSONObject entry = new JSONObject();
-                entry.putOpt("name", v.getName());
-                entry.putOpt("language", v.getLocale().toString());
-
-                String gender;
-                if(isFilterMatch(v, "female", pnameFemale, pfeatFemale)){
-                  gender = "female";
-                } else if(isFilterMatch(v, "male", pnameMale, pfeatMale)){
-                  gender = "male";
-                } else {
-                  gender = "unknown";
+                if(lang != null){
+                  if(!lang.getISO3Language().equals(v.getLocale().getISO3Language()))
+                    continue;
+                  if(lang.getISO3Country().length() > 0 && !lang.getISO3Country().equals(v.getLocale().getISO3Country()))
+                    continue;
                 }
-                entry.putOpt("gender", gender);
 
-                entry.putOpt("local", !v.isNetworkConnectionRequired());
-                entry.putOpt("quality", getVoiceQuality(v).toString());
+                if(isDetails){
 
-                list.put(entry);
+                  JSONObject entry = new JSONObject();
+                  entry.putOpt("name", v.getName());
+                  entry.putOpt("language", v.getLocale().toString());
 
-              } else {
-                list.put(v.getName());
+                  String gender;
+                  if(isFilterMatch(v, "female", pnameFemale, pfeatFemale)){
+                    gender = "female";
+                  } else if(isFilterMatch(v, "male", pnameMale, pfeatMale)){
+                    gender = "male";
+                  } else {
+                    gender = "unknown";
+                  }
+                  entry.putOpt("gender", gender);
+
+                  entry.putOpt("local", !v.isNetworkConnectionRequired());
+                  entry.putOpt("quality", getVoiceQuality(v).toString());
+
+                  list.put(entry);
+
+                } else {
+                  list.put(v.getName());
+                }
               }
             }
 
@@ -399,7 +410,8 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
         if (mTts != null) {
           if(SDK_VERSION >= 21){
-            result = new PluginResult(PluginResult.Status.OK, mTts.getVoice().getName());
+            Voice v = mTts.getVoice();
+            result = new PluginResult(PluginResult.Status.OK, v != null? v.getName() : null);
           } else {
             result = new PluginResult(PluginResult.Status.ERROR, String.format("Cannot query current voice: API is %d, but requires >= API 21.", SDK_VERSION));
           }
@@ -429,6 +441,9 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
       result =  new PluginResult(PluginResult.Status.JSON_EXCEPTION, msg);
 
     }
+
+    if(result == null && mTts == null)
+      result = new PluginResult(PluginResult.Status.ERROR, String.format("Cannot perform %s: Speech Synthesis is not yet initialized.", action));
 
     if(result != null)
       callbackContext.sendPluginResult(result);
@@ -617,7 +632,7 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
   @TargetApi(21)
   private String getFileSuffix_api21(String utteranceId, Voice voice) {
-    String voiceName = voice.getName();
+    String voiceName = voice != null? voice.getName() : "";
     StringBuilder sb = new StringBuilder();
     sb.append("_id_");
     for(int i=0, len = voiceName.length(); i < len; ++i){
@@ -634,7 +649,10 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
   //@TargetApi(20)//for API level <= 20
   private String getFileSuffix_old(String utteranceId, Locale locale) {
-    return "_id_"+locale.getISO3Language()+"-"+locale.getISO3Country()+"_"+utteranceId+".wav";
+    if(locale != null) {
+      return "_id_" + locale.getISO3Language() + "-" + locale.getISO3Country() + "_" + utteranceId + ".wav";
+    }
+    return "_id_-_" + utteranceId + ".wav";
   }
 
 
@@ -765,32 +783,39 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     String languageCode;
 
     if(lang == JSONObject.NULL)
-      return !isGetDefault? null : SDK_VERSION >= 21? mTts.getVoice().getLocale() : mTts.getLanguage();/////////////// EARLY EXIT ////////////////////////
+      languageCode = null;
+    else if(lang instanceof String)
+      languageCode = (String) lang;
+    else
+      languageCode = String.valueOf(lang);
 
-      if(lang instanceof String)
-        languageCode = (String) lang;
-      else
-        languageCode = String.valueOf(lang);
-
-      if(languageCode == null || languageCode.length() < 1){
-        return !isGetDefault? null : SDK_VERSION >= 21? mTts.getVoice().getLocale() : mTts.getLanguage();/////////////// EARLY EXIT ////////////////////////
+    if(languageCode == null || languageCode.length() < 1){
+      if(!isGetDefault){
+        return null;
       }
-
-      String[] parts = languageCode.split("-|_");
-      int len = parts.length;
-      Locale loc;
-      if(len == 3){
-        loc = new Locale(parts[0], parts[1], parts[2]);
-      } else if(len == 2){
-        loc = new Locale(parts[0], parts[1]);
-      } else {
-        if(len != 1 && LOG.isLoggable(LOG.WARN)){
-          LOG.w(PLUGIN_NAME, String.format("unknown format for language code: %s"), languageCode);
-        }
-        loc = new Locale(languageCode);
+      if(SDK_VERSION >= 21){
+        Voice v = mTts.getVoice();
+        return v != null? v.getLocale() : null;
       }
+      return mTts.getLanguage();
+      /////////////// EARLY EXIT ////////////////////////
+    }
 
-      return loc;
+    String[] parts = languageCode.split("-|_");
+    int len = parts.length;
+    Locale loc;
+    if(len == 3){
+      loc = new Locale(parts[0], parts[1], parts[2]);
+    } else if(len == 2){
+      loc = new Locale(parts[0], parts[1]);
+    } else {
+      if(len != 1 && LOG.isLoggable(LOG.WARN)){
+        LOG.w(PLUGIN_NAME, String.format("unknown format for language code: %s"), languageCode);
+      }
+      loc = new Locale(languageCode);
+    }
+
+    return loc;
   }
 
   /**
@@ -848,6 +873,9 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
     if(SDK_VERSION >= 21) {
 
       final Set<Voice> voices = mTts.getVoices();
+      if(voices == null){
+        return null; ///////////////// EARLY EXIT /////////////////////
+      }
       final int size = voices.size();
 
       if(this.lastVoiceSelection != null &&
@@ -921,6 +949,9 @@ public class AndroidSpeechSynthesizer extends CordovaPlugin {
 
     final Locale loc = mTts.getVoice().getLocale();
     final Set<Voice> voices = mTts.getVoices();
+    if(voices == null){
+      return null; ///////////////// EARLY EXIT ///////////////////
+    }
     final int size = voices.size();
 
     if(this.lastVoiceSelection != null &&
