@@ -2,6 +2,7 @@ bin
 .metadata
 .settings
 .project
+.history/
 /.classpath
 /proguard-project.txt
 /project.properties
